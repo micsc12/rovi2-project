@@ -1,0 +1,29 @@
+# Created by Jesper Bogh Poder
+
+Do normal setup and connections (ip, roscore and stuff)
+
+put in fun_with_opencv in /catkin_workspace/src
+cd ..
+catkin_make
+
+
+Run on workstation:
+rosrun image_transport republish raw in:=/camera/left/image_color compressed out:=/Jesper/image2
+
+Run on your laptop:
+rosrun image_transport republish compressed in:=/Jesper/image2 raw out:=/Jesper/image
+
+Run on your laptop in new terminal:
+rosrun fun_with_opencv image_converter
+
+
+# nice guide for making package and node:
+https://www.clearpathrobotics.com/2014/09/ros-101-creating-node/
+
+# Nice tutorial on using opencv_bridge 
+http://wiki.ros.org/cv_bridge/Tutorials/UsingCvBridgeToConvertBetweenROSImagesAndOpenCVImages
+
+
+
+
+
