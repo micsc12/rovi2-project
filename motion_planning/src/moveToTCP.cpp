@@ -16,91 +16,77 @@
 #include <rwlibs/proximitystrategies/ProximityStrategyPQP.hpp>
 #include <rw/trajectory/LinearInterpolator.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
+#include <rw/proximity/CollisionStrategy.hpp>
+#include <rw/kinematics/State.hpp>
+
+#include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
+
+
+#include <rw/loaders/WorkCellLoader.hpp>
 
 // Based on the universal_robot_test.h from caros.
 class planner
 {
 public:
 
-    planner(ros::NodeHandle nh) : nodehandle_("~"), sdsip_(nodehandle_, "caros_universalrobot")
+    planner() : nodehandle_("~"), sdsip_(nodehandle_, "caros_universalrobot")
     {
-        //nodehandle_ = nh;
-        //sdsip_(nh);
+        ROS_INFO("This node needs a workcell located at workcell/WC3_scene.wc.xml");
 
-       /* // Initialize things from caros/robwork
-        workcell_ = caros::getWorkCell();
-        if (workcell_ == NULL)
-        {
-            ROS_ERROR("No workcell was loaded - exiting...");
-            throw std::runtime_error("Not able to obtain a workcell.");
-        }
+        wc = rw::loaders::WorkCellLoader::Factory::load("workcell/WC3_Scene.wc.xml");
+        device = wc->findDevice("UR1");
 
-        std::string device_name = "UR1"; // TODO change this to find robot name on parameter server
+        currentState = wc->getDefaultState();
+
+        // Using same collisionchecker as RWstudio, to make it possible to validate results
+        colDetect = new rw::proximity::CollisionDetector(wc,rwlibs::proximitystrategies::ProximityStrategyFactory::makeDefaultCollisionStrategy());
 
 
-        ROS_DEBUG_STREAM("Looking for the device '" << device_name << "' in the workcell.");
-        device_ = workcell_->findDevice(device_name);
-        if (device_ == NULL)
-        {
-          ROS_FATAL_STREAM("Unable to find device " << device_name << " in the loaded workcell");
-          throw std::runtime_error("Not able to find the device within the workcell.");
-        }
-*/
     }
 
     bool move_to_q(motion_planning::moveToQ::Request  &req,
                    motion_planning::moveToQ::Response &res)
     {
         ROS_INFO("Moving....");
-        bool return_stat = true;
-        //req.Q[0] = 1;
-        res.ok = 1;
-        rw::math::Q goal(6,req.Q[0],req.Q[1],req.Q[2],req.Q[3],req.Q[4],req.Q[5]);
-        
-	return_stat = sdsip_.moveServoQ(goal);
-        ROS_INFO("Movement done");// + std::to_string(req.Q[1]));
-
-        if (!return_stat)
-        {
-            return_stat = false;
-            ROS_ERROR_STREAM("The serial device didn't acknowledge the moveServoQ command.");
-        }
-        return return_stat;
-    }
-
-/*
-    bool move_to_q2(motion_planning::moveToQ::Request  &req,
-                   motion_planning::moveToQ::Response &res)
-    {
-        ROS_INFO("Moving....");
-        ros::ServiceClient client = n.serviceClient<caros_universalrobot::servo_q>("servo_q");
-        caros_universalrobot::servo_q srv;
-        srv.q
 
         bool return_stat = true;
-        req.Q[0] = 1;
         res.ok = 1;
         rw::math::Q goal(6,req.Q[0],req.Q[1],req.Q[2],req.Q[3],req.Q[4],req.Q[5]);
-        return_stat = sdsip_.moveServoQ(goal);
-        ROS_INFO("Movement done");// + std::to_string(req.Q[1]));
+        device->setQ(goal,currentState);
 
-        if (!return_stat)
+        if (!colDetect->inCollision(currentState))
         {
+            return_stat = sdsip_.moveServoQ(goal);
+            ROS_INFO("Movement done");// + std::to_string(req.Q[1]));
+
+            if (!return_stat)
+            {
+                return_stat = false;
+                ROS_ERROR_STREAM("The serial device didn't acknowledge the moveServoQ command.");
+            }
+        }
+        else
+        {
+            ROS_INFO("Goal is in collision!");
             return_stat = false;
-            ROS_ERROR_STREAM("The serial device didn't acknowledge the moveServoQ command.");
         }
         return return_stat;
-    }
-*/
 
+        // Get current Q from sdsip_.getQ()
+    }
 
 protected:
     ros::NodeHandle nodehandle_;
     caros::SerialDeviceSIProxy sdsip_;
 
-    rw::models::WorkCell::Ptr workcell_;
-    rw::models::Device::Ptr device_;
+    rw::models::WorkCell::Ptr wc;
+    rw::models::Device::Ptr device;
+    rw::kinematics::State  currentState;
+
+    rw::proximity::CollisionStrategy::Ptr colStrat;
+    rw::proximity::CollisionDetector::Ptr colDetect;
     rw::pathplanning::QToQPlanner::Ptr planner_;
+
 
 };
 
@@ -110,7 +96,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "motion_planning");
     ros::NodeHandle n;
 
-    planner planner1(n);
+    planner planner1;
 
     ros::ServiceServer service = n.advertiseService("moveToQ", &planner::move_to_q, &planner1);
     ROS_INFO("Nice motionplanning ready!");
