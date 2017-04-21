@@ -11,5 +11,8 @@
      <FramePair first="UR1.Joint5" second="WSG50.LeftSensorFinger"/>  
      <FramePair first="UR1.Joint6" second="WSG50.RightSensorFinger"/>   
      <FramePair first="UR1.Joint6" second="WSG50.LeftSensorFinger"/> 
+     <FramePair first="WPtable" second="Wall2"/>
+     <FramePair first="Wall1" second="Wall3"/>
+     <FramePair first="Wall2" second="Wall3"/>
     </Exclude>
 </CollisionSetup>
