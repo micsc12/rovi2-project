@@ -118,8 +118,8 @@ public:
     msg_center.y = maxCenter.y;
     center_pub.publish(msg_center);
     
-    FileStorage fs("/home/bjarkips/workspace/test.yml", FileStorage::WRITE);
-    fs << "cameraMatrix" << hue;
+    //FileStorage fs("/home/bjarkips/workspace/test.yml", FileStorage::WRITE);
+    //fs << "cameraMatrix" << hue;
 		fs.release();
     
     //imshow("bin", bin);
