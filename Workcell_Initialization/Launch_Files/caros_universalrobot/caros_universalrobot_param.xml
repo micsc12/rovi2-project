@@ -1,0 +1,32 @@
+<!-- Parameters for the caros_universalrobot node -->
+<launch>
+  <arg name="device_name" default="UR-6-85-5-A" />
+  <arg name="simulation" />
+  
+  <!-- SIMULATOR-->
+  <group if="$(arg simulation)">
+        <arg name="device_ip" default="127.0.0.1" /> 
+        <arg name="callback_ip" default="127.0.0.1" /> 
+        <arg name="callback_port" default="33333" />
+
+        <!-- Set the ROS parameters -->
+        <param name="device_name" type="str" value="$(arg device_name)" />
+        <param name="device_ip" type="str" value="$(arg device_ip)"/>
+        <param name="callback_port" type="str" value="$(arg callback_port)"/>
+        <param name="callback_ip" type="str" value="$(arg callback_ip)"/>
+  </group>
+  
+  <!-- Robot WORKCELL -->
+  <group unless="$(arg simulation)">
+        <arg name="device_ip" default="192.168.100.2" />
+        <arg name="callback_ip" default="192.168.100.66" />
+        <arg name="callback_port" default="11311" />
+        
+        <!-- Set the ROS parameters -->
+        <param name="device_name" type="str" value="$(arg device_name)" />
+        <param name="device_ip" type="str" value="$(arg device_ip)"/>
+        <param name="callback_port" type="str" value="$(arg callback_port)"/>
+        <param name="callback_ip" type="str" value="$(arg callback_ip)"/>
+  </group>
+  
+</launch>
