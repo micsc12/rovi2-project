@@ -37,6 +37,7 @@ public:
 
   void leftCb(const sensor_msgs::ImageConstPtr& msg)
   {
+  	cout << "red_ball: running callback function for left image" << endl;
     cv_bridge::CvImagePtr cv_ptr;
     try
     {
@@ -57,6 +58,7 @@ public:
   
    void rightCb(const sensor_msgs::ImageConstPtr& msg)
   {
+  	cout << "red_ball: running callback function for right image" << endl;
     cv_bridge::CvImagePtr cv_ptr;
     try
     {

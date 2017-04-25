@@ -123,38 +123,38 @@ include_directories(
 )
 
 ## Declare a C++ library
-#add_library(red_ball
-#  src/red_ball_node_left.cpp
+add_library(red_ball
+  src/red_ball_node.cpp
 #  src/red_ball_node_right.cpp
-#)
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-#add_dependencies(red_ball red_ball_generate_dependencies_cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(red_ball red_ball_generate_dependencies_cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(red_ball_node_left src/red_ball_node_left.cpp)
-add_executable(red_ball_node_right src/red_ball_node_right.cpp)
+add_executable(red_ball_node src/red_ball_node.cpp)
+#add_executable(red_ball_node_right src/red_ball_node_right.cpp)
 
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(red_ball_node_left red_ball_generate_dependencies_cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(red_ball_node_right red_ball_generate_dependencies_cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(red_ball_node red_ball_generate_dependencies_cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#add_dependencies(red_ball_node_right red_ball_generate_dependencies_cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(red_ball_node_left
+target_link_libraries(red_ball_node
   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(red_ball_node_right
-  ${catkin_LIBRARIES}
-)
-
-#target_link_libraries(red_ball
+#target_link_libraries(red_ball_node_right
 #  ${catkin_LIBRARIES}
 #)
+
+target_link_libraries(red_ball
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
