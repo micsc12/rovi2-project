@@ -63,6 +63,7 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    moveToTCP.srv
    moveToQ.srv
+   moveToHome.srv
 )
 
 ## Generate actions in the 'action' folder
