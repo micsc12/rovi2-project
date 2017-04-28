@@ -28,6 +28,13 @@
 
 #include <rw/loaders/WorkCellLoader.hpp>
 
+// Libs for Pathplanner
+#include <rw/rw.hpp>
+#include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
+#include <rwlibs/pathplanners/rrt/RRTQToQPlanner.hpp>
+
+#define MAXTIME 20.
+
 // Based on the universal_robot_test.h from caros.
 class planner
 {
@@ -50,8 +57,16 @@ public:
         rw::models::SerialDevice::Ptr sDevice = rw::common::ownedPtr( new rw::models::SerialDevice(device->getBase(), device->getEnd(), device->getName(), currentState));
         urIK = new rw::invkin::ClosedFormIKSolverUR(sDevice,currentState);
         // Check joint limit here?
+        
+        // Constraint planner needed for RRT
+        plannerConstraint = rw::pathplanning::PlannerConstraint::make(colDetect, device, currentState);
 
+        sampler = rw::pathplanning::QSampler::makeConstrained(rw::pathplanning::QSampler::makeUniform(device), plannerConstraint.getQConstraintPtr());
+        
+        metric = rw::math::MetricFactory::makeEuclidean<rw::math::Q>();
 
+        // RRT connet planner
+        plannerRRT = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(plannerConstraint, sampler, metric, extend, rwlibs::pathplanners::RRTPlanner::RRTConnect);
 
 
     }
@@ -113,8 +128,9 @@ public:
 
         bool return_stat;
         res.ok = 1;
-        rw::math::Q goal(6,req.Q[0],req.Q[1],req.Q[2],req.Q[3],req.Q[4],req.Q[5]);
-
+        
+        rw::math::Q goal(6,req.Q[0],req.Q[1],req.Q[2],req.Q[3],req.Q[4],req.Q[5]);        
+        
         return_stat = move_device_to_q(goal);
 
         return return_stat;
@@ -126,7 +142,32 @@ public:
     bool move_device_to_q(rw::math::Q configuration)
     {
         bool return_stat = true;
-        device->setQ(configuration,currentState);
+        //device->setQ(configuration,currentState);
+        
+        
+        // getQ from device, setQ in currentState, get rotation from the device.
+        rw::math::Q currentQ = sdsip_.getQ();
+        device->setQ(currentQ,currentState);
+        
+        ROS_INFO_STREAM("Moving from: " << currentQ);
+        
+        rw::trajectory::QPath path;
+        
+        // Find Path
+        bool path_found = plannerRRT->query(currentQ,configuration,path,MAXTIME);
+        
+        if (path_found)
+        {
+            ROS_INFO_STREAM( "Path length: " << path.size() );
+            for (int i = 0; i < path.size(); ++i)
+            {
+                ROS_INFO_STREAM(path[i]);
+            }
+        }
+        else
+            ROS_INFO("Path was NOT found.");
+        
+        
 
         if (!colDetect->inCollision(currentState))
         {
@@ -162,7 +203,18 @@ protected:
     rw::invkin::ClosedFormIKSolverUR::Ptr urIK;
 
     rw::pathplanning::QToQPlanner::Ptr planner_;
+    
+    // costraint planner needed for pathplanner
+    rw::pathplanning::PlannerConstraint plannerConstraint;
 
+    rw::pathplanning::QSampler::Ptr sampler;
+    
+    rw::math::QMetric::Ptr metric;
+    
+    // set pathplanner step size epsilon - value in radians
+        double extend = 0.001;    
+    // RRT connet planner
+    rw::pathplanning::QToQPlanner::Ptr plannerRRT;
 
 };
 
