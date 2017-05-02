@@ -27,8 +27,10 @@ public:
     : it_(nh_)
   {
     // Subscribe to input video feed and publish output video feed
-    image_sub_left = it_.subscribe("/image_decompressed_left", 1, &red_ball_tracker::leftCb, this);
-    image_sub_right = it_.subscribe("/image_decompressed_right", 1, &red_ball_tracker::rightCb, this);
+    //image_sub_left = it_.subscribe("/image_decompressed_left", 1, &red_ball_tracker::leftCb, this);
+    //image_sub_right = it_.subscribe("/image_decompressed_right", 1, &red_ball_tracker::rightCb, this);
+    image_sub_left = it_.subscribe("/camera/left/image_raw", 1, &red_ball_tracker::leftCb, this);
+    image_sub_right = it_.subscribe("/camera/right/image_raw", 1, &red_ball_tracker::rightCb, this);
     //image_sub_ = it_.subscribe("/camera/left/image_raw", 1, &red_ball_tracker::imageCb, this);
       
     image_pub_left = it_.advertise("/red_ball/output_video_left", 1);
@@ -77,7 +79,7 @@ public:
   
   red_ball::center getCenter(cv_bridge::CvImagePtr cv_ptr) {
 		// Extract hue information
-    Mat hsv_temp, hsv[3];
+    /*Mat hsv_temp, hsv[3];
     cvtColor(cv_ptr->image, hsv_temp, CV_BGR2HSV); // convert image to HSV color space
     split(hsv_temp, hsv);    // split image into hue, saturation and value images
     Mat hue = hsv[0].clone();   // select hue channel
@@ -92,8 +94,26 @@ public:
 		upper = upper < 180 ? upper : 180;
 		Mat bin;
 		//normalize(hue, hue);
-    inRange(hue, lower, upper, bin);
-    Mat con = bin.clone();
+    inRange(hue, lower, upper, bin);*/
+    
+    cout << "Jeg er herinde" << endl;
+    // red marker 3 times standard deviation
+    int lowR=84; // sample 22
+    int highR=255;
+    int lowG=0; // see identify -verbose on the sample
+    int highG=20+14*3; 
+    int lowB=0;
+    int highB=3+3*11;
+    Mat img=cv_ptr->image.clone();
+    //cvtColor(cv_ptr->image, img, CV_BGR);
+    Mat imgThresholdedRed;
+    inRange(img, Scalar(lowB, lowG, lowR), Scalar(highB, highG, highR), imgThresholdedRed);
+    erode(imgThresholdedRed, imgThresholdedRed, getStructuringElement(MORPH_RECT, Size(5, 5)) );
+    dilate( imgThresholdedRed, imgThresholdedRed, getStructuringElement(MORPH_RECT, Size(5, 5)) );
+    
+    
+    
+    Mat con = imgThresholdedRed.clone();
     
     /// Find contours
     std::vector<std::vector<Point> > contours;
