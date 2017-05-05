@@ -1,0 +1,5 @@
+rosservice call moveToTCP -- -0.3 -0.3 0.7
+rosservice call moveToQ '[ 0, -1.6, 0, -1.6, 0, 0]'
+
+// POsition inside the table
+rosservice call moveToQ '[ -0.921, -3.133, 0, -1.573, 0, 0]'

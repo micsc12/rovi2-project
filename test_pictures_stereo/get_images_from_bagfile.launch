@@ -1,0 +1,7 @@
+<launch>
+   <node pkg="rosbag" type="play" name="rosbag" args="-d 2 /home/jesper/Dick_pics/test3.bag"/>
+
+   <node name="saver_left" pkg="image_view" type="image_saver" respawn="false" output="screen" args="image:=/camera/left/image_raw _filename_format:=left%04i.png"/>
+   <node name="saver_right" pkg="image_view" type="image_saver" respawn="false" output="screen" args="image:=/camera/right/image_raw _filename_format:=right%04i.png"/>
+
+</launch>

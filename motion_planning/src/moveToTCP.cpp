@@ -37,6 +37,8 @@
 #include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
 #include <rwlibs/pathplanners/rrt/RRTQToQPlanner.hpp>
 
+#include <math.h>     /* fabs */
+
 
 using namespace rw::pathplanning;
 using namespace rwlibs::pathplanners;
@@ -331,14 +333,8 @@ public:
     {
         bool return_stat = true;
 
-        // getQ from device, setQ in currentState,
-        rw::math::Q currentQ = sdsip_.getQ();
+        rw::math::Q currentQ = get_current_Q();
         device->setQ(currentQ,currentState);
-
-
-
-
-        ROS_INFO_STREAM("Moving from: " << currentQ);
 
         rw::trajectory::QPath path;
 
@@ -348,24 +344,42 @@ public:
         if (path_found)
         {
             ROS_INFO_STREAM( "Path length: " << path.size() );
-            for (int i = 0; i < path.size(); ++i)
+            
+            ROS_INFO_STREAM("Moving from: " << currentQ);
+            
+            rw::common::Timer t;
+            for (int i = 1; i < path.size(); ++i)
             {
-                ROS_INFO_STREAM(path[i]);
+                ROS_INFO_STREAM("Moving to configuration " << i <<" : " << path[i] << " ...");
+                return_stat = sdsip_.moveServoQ(path[i]);
+                
+                // Make sure, that new messages from robot are current
+                wait_for_current_messages();
+                
+                // for some reason isMovin() doesn't work to wait until movement is finished
+                t.resetAndResume();
+                while(!approaching_goal_configuration(path[i]) && t.getTime() < 5) 
+                {
+                    // Make sure, that new messages from robot are current
+                    //wait_for_current_messages();  
+                    //get_current_Q_vel();
+                    ros::spinOnce();
+                    ros::Duration(0.1).sleep();
+                }
+                // Print out last Q error from path, before changing targetQ configuration
+                ROS_INFO_STREAM("Final error from path[" << i << "] configuration: " << error_from_target(path[i]) );
+                t.pause();
+
             }
+            ROS_INFO("Movement done");
         }
         else
-            ROS_INFO("Path was NOT found.");
-
-
-        for (int i = 0; i < path.size(); ++i)
         {
-            return_stat = sdsip_.moveServoQ(path[i]);
-            ROS_INFO("Movement done");
-            ros::Duration(5).sleep();
-
-
+            ROS_INFO("Path was NOT found.");
+            return_stat = false;
         }
 
+        /*
         if (!colDetect->inCollision(currentState))
         {
             return_stat = sdsip_.moveServoQ(configuration);
@@ -382,6 +396,7 @@ public:
             ROS_INFO("Goal is in collision!");
             return_stat = false;
         }
+        */
         return return_stat;
     }
 
@@ -408,9 +423,114 @@ protected:
     rw::math::QMetric::Ptr metric;
 
     // set pathplanner step size epsilon - value in radians
-        double extend = 0.001;
+    double extend = 0.1;
     // RRT connet planner
     rw::pathplanning::QToQPlanner::Ptr plannerRRT;
+    
+    // Variables for storing last 2 maximum joint velocities 
+    double previous_max_Abs = 0;
+    double max_Abs_speed = 0;
+    
+    bool wait_for_current_messages()
+    {
+        // Make sure, that new messages from robot are current
+        ros::Time current_timestamp = ros::Time::now();
+        ros::Time obtained_timestamp = sdsip_.getTimeStamp();
+        
+        // Wait here, until timestamp received from robot is newer
+        // than current local timestamp
+        while (current_timestamp > obtained_timestamp)
+        {
+            ros::Duration(0.1).sleep();  // In seconds
+            ros::spinOnce();
+            obtained_timestamp = sdsip_.getTimeStamp();
+            //ROS_INFO("Waiting for current message...");
+        }
+        
+        return true;
+        
+        //ToDo
+        // false response when unable to get current message
+    }
+    
+    rw::math::Q get_current_Q()
+    {
+        wait_for_current_messages();
+        // getQ from device
+        return sdsip_.getQ();
+    }
+    
+    rw::math::Q get_current_Q_vel()
+    {
+        wait_for_current_messages();
+        rw::math::Q currentQ_vel = sdsip_.getQd();
+        //ROS_INFO_STREAM("Current joint velocity: " << currentQ_vel);
+        
+        return currentQ_vel;
+    }
+    
+    rw::math::Q error_from_target(const rw::math::Q &targetQ)
+    {        
+        rw::math::Q currentQ = get_current_Q();
+        //ROS_INFO_STREAM("Current joint velocity: " << currentQ_vel);
+        
+        rw::math::Q error_Q = targetQ - currentQ;
+        
+        // Get ABS of errors
+        rw::math::Q abs_error_Q = error_Q;  //dummy init of Q vector needed for correct size
+        for (int i = 0; i < error_Q.size(); ++i)
+        {
+            abs_error_Q[i] = fabs(error_Q[i]);
+        }
+        
+        return abs_error_Q;
+    }
+    
+    bool approaching_goal_configuration()
+    {
+        previous_max_Abs = max_Abs_speed;
+        max_Abs_speed = 0;
+        
+        rw::math::Q currentQ_vel = get_current_Q_vel();
+        //ROS_INFO_STREAM("Current joint velocity: " << currentQ_vel);
+        
+        for (int i = 0; i < currentQ_vel.size(); ++i)
+        {
+            if (max_Abs_speed < fabs(currentQ_vel[i]) )
+            {
+                max_Abs_speed = fabs(currentQ_vel[i]);
+            }
+        }
+        
+        //ROS_INFO_STREAM(max_Abs_speed << "  " << currentQ_vel[0] << "   " << abs(currentQ_vel[0]));
+        
+        // check if the maximum speed is low enough and that we are slowing down (max_Abs_speed < previous_max_Abs)
+        if ( (max_Abs_speed <= previous_max_Abs) && (max_Abs_speed < 0.5) )
+            return true;
+        else
+            return false;
+    }
+    
+    bool approaching_goal_configuration(const rw::math::Q &targetQ)
+    {       
+        rw::math::Q error_Q = error_from_target(targetQ);
+        //ROS_INFO_STREAM("Error from target Q: " << error_Q);
+        
+        // check each joint for error from target
+        for (int i = 0; i < error_Q.size(); ++i)
+        {
+            double max_error_allowed = 0.1;
+            if (error_Q[i] > max_error_allowed )
+            {
+                // Any of joints breaches max err allowed -> we are not finished yet
+                return false;
+            }
+        }
+        
+        // close to targetQ -> call speed check functions
+        return approaching_goal_configuration();
+        
+    }
 
 };
 
