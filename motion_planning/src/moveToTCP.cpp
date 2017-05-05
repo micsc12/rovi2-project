@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string>
 #include <cmath>
+#include <fstream>      // std::ofstream
 
 
 #include <rw/pathplanning/PlannerConstraint.hpp>
@@ -22,6 +23,12 @@
 //#include <rw/proximity/CollisionStrategy.hpp>
 #include <rw/kinematics/State.hpp>
 #include <rw/models/SerialDevice.hpp>
+
+// ---------------------------------
+#include <rw/math/Transform3D.hpp>
+//#include <rws/RobWorkStudio.hpp>
+#include <rw/kinematics/MovableFrame.hpp>
+// ---------------------------------
 
 #include <rw/math/Jacobian.hpp>
 
@@ -56,6 +63,13 @@ public:
         device = wc->findDevice("UR1");
 
         currentState = wc->getDefaultState();
+        // find frame of TCP
+        TCP_Frame = wc->findFrame("UR1.TCP");
+        if (TCP_Frame == NULL) 
+        {
+            ROS_INFO(" TCP Frame not found.");
+        }
+        //Base_Frame = wc->findFrame("Base");
 
         //rw::kinematics::State currentStatePtr = &currentState;
         // Using same collisionchecker as RWstudio, to make it possible to validate results
@@ -82,7 +96,8 @@ public:
         // Use standard params:
         plannerRRT = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(plannerConstraint, device,rwlibs::pathplanners::RRTPlanner::RRTConnect);
 
-
+        ofs.open("Calibration_camera_robot.txt", std::ofstream::out);
+        ofsQ.open("Calibration_camera_robot_Q.txt", std::ofstream::out);
 
     }
     /*//Maybe not needed after all
@@ -94,6 +109,57 @@ public:
     }
     //*/
 
+    // This function is used for moving robot around the cell while keeping constant orientation of TCP pointing towards camera 
+    rw::math::Q convert_to_q_calibration(double x, double y, double z)
+    {
+        rw::math::Vector3D<double> translation(x,y,z);
+        rw::math::RPY<double> rotation(-0.406, 0.038, -1.036);
+        
+        rw::math::Transform3D<double> transformation(translation,rotation);
+
+        // getQ from device, setQ in currentState, get rotation from the device.
+        rw::math::Q currentQ = sdsip_.getQ();
+
+        device->setQ(currentQ,currentState);
+        
+        std::vector<rw::math::Q> solutions = urIK->solve(transformation, currentState);
+        
+        
+        // If no solutions exist, the service failed:
+        if(solutions.size() == 0)
+        {
+            rw::math::Q ret(6,0.0,0.0,0.0,0.0,0.0,0.0);
+            return ret;
+        }
+
+        // Determine the best of the found solutions:
+        int bestsolution = 0;
+        double max_dist = 10000;
+        rw::math::Q difference;
+
+        ROS_INFO_STREAM(solutions.size() << " solutions found. Selecting the best one!");
+
+
+        for (int i = 0; i < solutions.size(); i++)
+        {
+            //ROS_INFO_STREAM("checking solutions" << solutions[i][5]);
+            difference = currentQ - solutions[i];
+
+
+            if (difference.norm2() < max_dist)
+            {
+                bestsolution = i;
+                max_dist = difference.norm2();
+            }
+        }
+        //solutions[bestsolution][5] = 0;
+
+
+        // Now it just returns the first solution, not the best!!!
+        // If no solution exists, the node crashes at the moment. This needs to be fixed!
+        return solutions[bestsolution];
+    }
+    
     // This functions uses the closedformIKsolver to find the configuration we want.
     rw::math::Q convert_to_q(double x, double y, double z)
     {
@@ -103,10 +169,7 @@ public:
         // getQ from device, setQ in currentState, get rotation from the device.
         rw::math::Q currentQ = sdsip_.getQ();
 
-        device->setQ(currentQ,currentState);
-
-
-
+        device->setQ(currentQ,currentState);        
 
         // base to end transform for new position, same orientation:
         // this should be done more intelligently, (3 equations with 6 unknows, select nearest)
@@ -282,8 +345,10 @@ public:
         bool return_stat;
         res.ok = 1;
         rw::math::Q goal;
-        goal = convert_to_q(req.x,req.y,req.z);
-
+        //goal = convert_to_q(req.x,req.y,req.z);
+        // for calibration keep TCP pointing to the camera
+        goal = convert_to_q_calibration(req.x,req.y,req.z);
+        
         return_stat = move_device_to_q(goal);
 
         return return_stat;
@@ -343,7 +408,7 @@ public:
 
         if (path_found)
         {
-            ROS_INFO_STREAM( "Path length: " << path.size() );
+            ROS_INFO_STREAM("Path length: " << path.size() );
             
             ROS_INFO_STREAM("Moving from: " << currentQ);
             
@@ -352,28 +417,60 @@ public:
             {
                 ROS_INFO_STREAM("Moving to configuration " << i <<" : " << path[i] << " ...");
                 // Testing out moveptp
-                return_stat = sdsip_.movePtp(path[i]);
-                //return_stat = sdsip_.moveServoQ(path[i]);
+                //return_stat = sdsip_.movePtp(path[i]);
+                return_stat = sdsip_.moveServoQ(path[i]);
                 /*
                 // Make sure, that new messages from robot are current
                 wait_for_current_messages();
                 
                 // for some reason isMovin() doesn't work to wait until movement is finished
                 t.resetAndResume();
-                while(!approaching_goal_configuration(path[i]) && t.getTime() < 5) 
-                {
-                    // Make sure, that new messages from robot are current
-                    //wait_for_current_messages();  
-                    //get_current_Q_vel();
-                    ros::spinOnce();
-                    ros::Duration(0.1).sleep();
-                }
+                wait_to_finish_move(path[i]);
                 // Print out last Q error from path, before changing targetQ configuration
                 ROS_INFO_STREAM("Final error from path[" << i << "] configuration: " << error_from_target(path[i]) );
                 t.pause();
                 */
             }
+            // for camera calibration -> Wait until movement is finished
+            ros::Duration(10).sleep();
+            ros::spinOnce();
+            
             ROS_INFO("Movement done");
+            
+            // Get current tranformation from base to TCP
+            currentQ = get_current_Q();
+            device->setQ(currentQ, currentState);
+            ROS_INFO_STREAM("Q after move: " << currentQ);
+            ofsQ << currentQ << std::endl;
+            
+            //rw::math::Transform3D<double> 
+            auto baseTtcp = device->baseTframe(TCP_Frame, currentState);
+            ROS_INFO_STREAM("TCP position in Robot base frame[x, y, z]: " << baseTtcp.P());
+            
+            /*
+            auto worldTbase = device->worldTbase(currentState);
+            
+            ROS_INFO_STREAM("TCP position in World frame[x, y, z]: " << (worldTbase * baseTtcp).P());
+            */
+            
+            //ROS_INFO_STREAM(baseTtcp);
+             
+            // Transformation from TCP to marker - will stay constant
+            // ToDo move it to better place
+            rw::math::Transform3D<double> tcpTmarker(rw::math::Vector3D<double>(0,0,0));
+            
+            // Compute transform from base to marker on the TCP
+            rw::math::Transform3D<double> baseTmarker = baseTtcp * tcpTmarker;
+            // Get marker 3D position
+            rw::math::Vector3D<double> markerP = baseTmarker.P();
+            ROS_INFO_STREAM("Marker position [x, y, z]: " << markerP);
+            
+            ofs << markerP << std::endl;
+            /*
+            // Compute Transformation from cameraFrame to textureFrame
+            rw::math::Transform3D<double> cameraTtexture = rw::kinematics::Kinematics::frameTframe(cameraFrame, textureFrame, _state);
+            */
+            
         }
         else
         {
@@ -410,6 +507,7 @@ protected:
     rw::models::WorkCell::Ptr wc;
     rw::models::Device::Ptr device;
     rw::kinematics::State  currentState;
+    rw::kinematics::Frame* TCP_Frame;
 
     rw::proximity::CollisionStrategy::Ptr colStrat;
     rw::proximity::CollisionDetector::Ptr colDetect;
@@ -432,6 +530,9 @@ protected:
     // Variables for storing last 2 maximum joint velocities 
     double previous_max_Abs = 0;
     double max_Abs_speed = 0;
+    
+    std::ofstream ofs;
+    std::ofstream ofsQ;
     
     bool wait_for_current_messages()
     {
@@ -511,6 +612,18 @@ protected:
             return true;
         else
             return false;
+    }
+    
+    void wait_to_finish_move(const rw::math::Q &targetQ)
+    {
+        while(!approaching_goal_configuration(targetQ)) 
+        {
+            // Make sure, that new messages from robot are current
+            wait_for_current_messages();  
+            //get_current_Q_vel();
+            ros::spinOnce();
+            ros::Duration(0.1).sleep();
+        }
     }
     
     bool approaching_goal_configuration(const rw::math::Q &targetQ)
