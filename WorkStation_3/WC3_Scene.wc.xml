@@ -54,14 +54,6 @@
   </Drawable>
   </Frame>
 
-   <Frame name="VisionBox_near" refframe="Wall2" type="Movable">
-      <RPY> 0 0 0 </RPY> <Pos>1.605 0.057 1.48</Pos>
-     <Drawable name="visBox" refframe="back" >
-   <RPY> 0 0 0 </RPY> <Pos>0 0 0</Pos>
-   <Polytope file="Geometry/VisionBoxNew.stl" />
-  </Drawable>
-  </Frame>
-
    <Frame name="VisionBox_far" refframe="Wall3" type="Movable">
       <RPY> 0 0 0 </RPY> <Pos>0.250 0.052 2.062</Pos>
      <Drawable name="visBox" refframe="back" >
