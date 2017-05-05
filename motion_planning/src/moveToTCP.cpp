@@ -351,8 +351,10 @@ public:
             for (int i = 1; i < path.size(); ++i)
             {
                 ROS_INFO_STREAM("Moving to configuration " << i <<" : " << path[i] << " ...");
-                return_stat = sdsip_.moveServoQ(path[i]);
-                
+                // Testing out moveptp
+                return_stat = sdsip_.movePtp(path[i]);
+                //return_stat = sdsip_.moveServoQ(path[i]);
+                /*
                 // Make sure, that new messages from robot are current
                 wait_for_current_messages();
                 
@@ -369,7 +371,7 @@ public:
                 // Print out last Q error from path, before changing targetQ configuration
                 ROS_INFO_STREAM("Final error from path[" << i << "] configuration: " << error_from_target(path[i]) );
                 t.pause();
-
+                */
             }
             ROS_INFO("Movement done");
         }
