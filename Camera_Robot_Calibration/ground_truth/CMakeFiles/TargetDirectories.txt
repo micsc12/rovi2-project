@@ -1,0 +1,3 @@
+/home/bjarkips/workspace/ground_truth/CMakeFiles/rebuild_cache.dir
+/home/bjarkips/workspace/ground_truth/CMakeFiles/edit_cache.dir
+/home/bjarkips/workspace/ground_truth/CMakeFiles/ground_truth.dir
