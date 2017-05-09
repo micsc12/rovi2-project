@@ -31,7 +31,7 @@ void Pathoptimizerr::prunePath()
     {
         Q start = internal_path[i-2];
         Q goal = internal_path[i];
-        if (checkPathSegment(start,goal,0.1))
+        if (checkPathSegment(start,goal,0.05))
         {
             // If collisionfree, delete redundant configuration!
             internal_path.erase(internal_path.begin()+i-1);
@@ -83,7 +83,7 @@ void Pathoptimizerr::shortcutPath()
 }
 
 
-bool Pathoptimizerr::checkPathSegment(Q start, Q goal, double precision = 0.1)
+bool Pathoptimizerr::checkPathSegment(Q start, Q goal, double precision)
 {
     Q current_pos;
     Q difference = goal - start;
@@ -102,8 +102,12 @@ bool Pathoptimizerr::checkPathSegment(Q start, Q goal, double precision = 0.1)
     double min_steps = std::ceil(dist / precision);
     double steps = std::ceil(std::log2(min_steps));
 
+    stepsneeded = std::pow(2,steps);
+
+
     Q step = difference / std::pow(2,steps);
 
+    step2 = step;
     int current_step;
 
     int offset = 0;
@@ -121,9 +125,11 @@ bool Pathoptimizerr::checkPathSegment(Q start, Q goal, double precision = 0.1)
                 break;
 
             // Do the check
-            current_pos = start + difference * current_step;
+            current_pos = start + (step * current_step);
+            device->setQ(current_pos,currentState);
             if (colDetect->inCollision(currentState))
                 return false;
+
         }
     }
 
@@ -178,7 +184,7 @@ double Pathoptimizerr::distance(Q start, Q goal)
     double ret_val = 0;
     for (uint j = 0; j < start.size(); j++)
     {
-        ret_val =  std::pow(goal[j] - start[j],2);
+        ret_val +=  std::pow(goal[j] - start[j],2);
     }
     return std::sqrt(ret_val);
 }

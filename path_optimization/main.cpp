@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 
     QPath testpath;
     Q* next_q;
-    next_q = new Q(6, 6.1973e-16, -1.5708, 6.52256e-16, -1.5708, -4.41487e-16, 1.02051e-17);
+    next_q = new Q(6, 0.0, -1.5708, 0.0, -1.5708, 0.0, 0.0);
     testpath.push_back(*next_q);
     next_q = new Q(6, 0.491173, -0.944223, -0.361745, -1.19975, 0.4972, 0.508311);
     testpath.push_back(*next_q);
@@ -60,17 +60,22 @@ int main(int argc, char** argv) {
     testpath.push_back(*next_q);
     next_q = new Q(6, 1.94613, -0.17226, 0.438452, -0.973427, 0.413602, -0.042939);
     testpath.push_back(*next_q);
-    next_q = new Q(6, 1.9, 0, 0, -1.6, 0, 0);
+    next_q = new Q(6, 1.9, 0.0, 0.0, -1.6, 0.0, 0.0);
     testpath.push_back(*next_q);
 
     Pathoptimizerr optimizer(testpath);
 
 
     cout << "Path length:" << optimizer.internal_path.size() <<  endl;
-    cout << optimizer.dist_initial << endl;
+    cout << optimizer.lenghtOfPathQSpace() << endl;
     optimizer.prunePath();
     cout << "path pruning done.." << endl;
     cout << "Path length:" << optimizer.internal_path.size() <<  endl;
     cout << optimizer.lenghtOfPathQSpace() << endl;
+
+    for (int i = 0; i < 4; i++)
+    {
+        cout << "rosservice call moveToQ -- '[" << optimizer.internal_path[i](0) << ", " << optimizer.internal_path[i](1) << ", "<< optimizer.internal_path[i](2) << ", "<< optimizer.internal_path[i](3) << ", "<< optimizer.internal_path[i](4) << ", "<< optimizer.internal_path[i](5) << "]'" << endl;
+    }
     return 0;
 }

@@ -56,6 +56,8 @@ public:
     WorkCell::Ptr wc;
     Device::Ptr device;
     State currentState;
+    int stepsneeded;
+    Q step2;
     rw::proximity::CollisionDetector::Ptr colDetect;
 
 
