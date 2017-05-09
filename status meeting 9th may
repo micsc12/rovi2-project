@@ -1,0 +1,11 @@
+Meeeting notes, 9th of May 2017. 
+
+Status: 
+Vision status: Own implementation of simple linear kalman filter: 
+We don't need to go for the extended kalman filter, but we could extend open the model (vel/acceleration). 
+Dont go to crazy with the models though :)
+
+2D uncertainties can be propagated into 3d uncertainty. Dirk approves.
+
+For main topics, we need to go into detail. 
+
