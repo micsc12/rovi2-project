@@ -36,7 +36,7 @@ public:
 
         estPos_pub = nh_.advertise<stereo_cam::point>("/kalman_filter/predicted_pos", 100);
 
-        processNoise = .001;
+        processNoise = .02; 
         measurementNoise = 5;
 
         dt = 1.0/15.0; // should have an update rate of 15 frames per second
@@ -81,14 +81,14 @@ public:
                                         0, 0, 0, 0, 0, 0, 0, 1, 0, 
                                         0, 0, 0, 0, 0, 0, 0, 0, 1);
 
-        Rk = (Mat_<float>(3, 3) <<	1, 0, 0, 
-                                        0, 1, 0,
-                                        0, 0, 1);
-        
+        Rk = (Mat_<float>(3, 3) <<	8.911315337248085e-07, 2.449382784920743e-06, -9.040569567174915e-06,
+                                        7.560304891441871e-06, 2.18248866464645e-05, 0.0001601961883781097,
+                                        -1.403416158123503e-05, 0.0002530436460603804, 0.00185826111431261);
+        cout << Rk << endl;
         // Qk is the processNoise
         Qk=Qk*processNoise;
         // Rk is the noise for our senser
-        Rk=Rk*measurementNoise;
+        //Rk=Rk*measurementNoise;
         x_cur= (Mat_<float>(9, 1) << 0, 0, 0, 0, 0, 0, 0, 0, 0);
         x_last= (Mat_<float>(9, 1) << 10, 10, 10, 5, 5, 5, 2, 2, 2);
         //H = (Mat_<float>(9, 1) << 1, 1, 1, 0, 0, 0, 0, 0, 0);
@@ -98,7 +98,7 @@ public:
                                     
         transpose(F,F_trans);
         transpose(H,H_trans);
-        KF.statePost.at<float>(1) = 0;
+        /*KF.statePost.at<float>(1) = 0;
         KF.statePost.at<float>(2) = 0;
         KF.statePost.at<float>(3) = 0;
         KF.statePost.at<float>(4) = 0;
