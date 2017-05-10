@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="Robot_camera_calibration"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\opt\;CMake Files\..\..\..\..\..\..\..\opt\RobWork2\;CMake Files\..\..\..\..\..\..\..\opt\RobWork2\RobWork\;CMake Files\..\..\..\..\..\..\..\opt\RobWork2\RobWork\cmake\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Robot_camera_calibration">
+				<Option output="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/build/Robot_camera_calibration" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/build"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBOOST_DISABLE_ASSERTS"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../ext/boostbindings"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../src"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../ext/rwyaobi"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../ext/rwpqp"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../ext/lua/src"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../ext/csgjs/src"/>
+					<Add directory="/usr/include/assimp"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 Robot_camera_calibration"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Robot_camera_calibration/fast">
+				<Option output="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/build/Robot_camera_calibration" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/build"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DBOOST_DISABLE_ASSERTS"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../ext/boostbindings"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../src"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../ext/rwyaobi"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../ext/rwpqp"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../ext/lua/src"/>
+					<Add directory="/opt/RobWork2/RobWork/cmake/../ext/csgjs/src"/>
+					<Add directory="/usr/include/assimp"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 Robot_camera_calibration/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/main.cpp">
+			<Option target="Robot_camera_calibration"/>
+		</Unit>
+		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/../../../../../../../opt/RobWork2/RobWork/cmake/RobWorkConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\RobWork2\RobWork\cmake\"/>
+		</Unit>
+		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/../../../../../../../opt/RobWork2/RobWork/cmake/RobWorkConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\RobWork2\RobWork\cmake\"/>
+		</Unit>
+		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/../../../../../../../opt/RobWork2/RobWork/cmake/RobWorkBuildConfig_release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\RobWork2\RobWork\cmake\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,7 @@
+/opt/clion-2016.3.1/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration
+Robot_camera_calibration:
+-- warning: RobWork was not compiled with type:debug using type:release instead!
+Robot_camera_calibration done!
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug

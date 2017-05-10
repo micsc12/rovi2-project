@@ -12,8 +12,8 @@
 using namespace cv;
 using namespace std;
 
-string pathleft="/home/bjarkips/workspace/rovi2-project/Camera_Robot_Calibration/left/image";
-string pathright="/home/bjarkips/workspace/rovi2-project/Camera_Robot_Calibration/right/image";
+string pathleft="/media/petr/HDD/SDU/RoVi2/Project/rovi2-project/Camera_Robot_Calibration/left/image";
+string pathright="/media/petr/HDD/SDU/RoVi2/Project/rovi2-project/Camera_Robot_Calibration/right/image";
 string png=".png";
 Mat img;
 
@@ -197,7 +197,9 @@ int main()
         click=false;*/
         //waitKey(0);
         
-        for(int i=0 ; i< ground_truth.size() ; i+= 2)
+        
+    }
+    for(int i=0 ; i< ground_truth.size() ; i+= 2)
         {
             //cout << "ground_truth is x: " << ground_truth[i].x << " y: " << ground_truth[i].y << endl;
             //cout << "vision_algorithm is x: " << vision_algorithm[i].x << " y: " << vision_algorithm[i].y << endl;
@@ -228,8 +230,9 @@ int main()
 						Mat part=A.t()*A;
 						Mat M=part.inv()*A.t()*b;
 						
-						cout << "Image pair " << i/2+1 << ":" << endl;
-						cout << M << endl;
+                                                cout << M.at<double>(0,0) << " " << M.at<double>(1,0) << " " << M.at<double>(2,0) << std::endl;
+						//cout << "Image pair " << i/2+1 << ":" << endl;
+						//cout << M << endl;
 
 						//stereo_cam::point result;
 						//result.x=(M.at<double>(0, 0))*1000; // result in meters
@@ -238,7 +241,6 @@ int main()
 		
 						//position_3D.publish(result);
         }
-    }
 	
 	
   //cout << "Wow " << endl;

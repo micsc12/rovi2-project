@@ -1,4 +1,4 @@
-# Install script for directory: /home/bjarkips/workspace/ground_truth
+# Install script for directory: /media/petr/HDD/SDU/RoVi2/Project/rovi2-project/Camera_Robot_Calibration/ground_truth
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/bjarkips/workspace/ground_truth/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/media/petr/HDD/SDU/RoVi2/Project/rovi2-project/Camera_Robot_Calibration/ground_truth/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
