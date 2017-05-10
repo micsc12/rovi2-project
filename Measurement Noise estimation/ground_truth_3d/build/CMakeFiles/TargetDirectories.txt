@@ -1,0 +1,3 @@
+/home/jesper/Dropbox/2. semester kandidat/Rovi2/ground_truth_3d/build/CMakeFiles/rebuild_cache.dir
+/home/jesper/Dropbox/2. semester kandidat/Rovi2/ground_truth_3d/build/CMakeFiles/edit_cache.dir
+/home/jesper/Dropbox/2. semester kandidat/Rovi2/ground_truth_3d/build/CMakeFiles/ground_truth.dir

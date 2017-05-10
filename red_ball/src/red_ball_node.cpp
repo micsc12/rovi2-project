@@ -98,12 +98,12 @@ public:
     
     cout << "Jeg er herinde" << endl;
     // red marker 3 times standard deviation
-    int lowR=84; // sample 22
+    int lowR=118; // sample 22
     int highR=255;
     int lowG=0; // see identify -verbose on the sample
-    int highG=20+14*3; 
+    int highG=30+29*3; 
     int lowB=0;
-    int highB=3+3*11;
+    int highB=6+3*18;
     Mat img=cv_ptr->image.clone();
     //cvtColor(cv_ptr->image, img, CV_BGR);
     Mat imgThresholdedRed;
