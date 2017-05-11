@@ -90,7 +90,7 @@ public:
         // Rk is the noise for our senser
         //Rk=Rk*measurementNoise;
         x_cur= (Mat_<float>(9, 1) << 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        x_last= (Mat_<float>(9, 1) << 10, 10, 10, 5, 5, 5, 2, 2, 2);
+        x_last= (Mat_<float>(9, 1) << 0, 0, 2, 0, 0, 0, 0, 0, 0);
         //H = (Mat_<float>(9, 1) << 1, 1, 1, 0, 0, 0, 0, 0, 0);
         H = (Mat_<float>(3,9) <<    1, 0, 0, 0, 0, 0, 0, 0, 0,
                                     0, 1, 0, 0, 0, 0, 0, 0, 0,
@@ -118,44 +118,53 @@ public:
   
     void measCb(const stereo_cam::point& msg) {      
         
+        stereo_cam::point out;
         // inspired from http://www.bzarg.com/p/how-a-kalman-filter-works-in-pictures/
         // matrix dimensions are easily given by: www.swarthmore.edu/NatSci/echeeve1/Ref/Kalman/MatrixKalman.html
         // prediction
         x_cur=F*x_last; // no external influences
         P_cur=F*P_last*F_trans+Qk; // processNoise as uncertainty
         
-        cout << "Predicted x: \n" << x_cur << endl;
-        cout << "Predicted P: \n" << P_cur << endl;
+//         cout << "Predicted x: \n" << x_cur << endl;
+//         cout << "Predicted P: \n" << P_cur << endl;
         
         // get measurement
         meas(0) = msg.x;
         meas(1) = msg.y;
         meas(2) = msg.z;
-        Mat_<float> zk;
-        zk = (Mat_<float>(3, 1) << meas(0), meas(1), meas(2));
-       
         
-        // correction step
-        Mat part_of_K=(H*P_cur*H_trans)+Rk;
-        Mat K=(P_cur*H_trans)*part_of_K.inv();
-        cout << "Kalman Gain: \n" << K << endl;
-        
+        if(msg.x==-1 && msg.y==-1 && msg.z==-1) // if we do not see the ball - error message - just do prediction
+        {
+            P_last=P_cur;
+            x_last = x_cur;
+            
+            out.x = x_cur.at<float>(0);
+            out.y = x_cur.at<float>(1);
+            out.z = x_cur.at<float>(2);
+        }
+        else{
+            Mat_<float> zk;
+            zk = (Mat_<float>(3, 1) << meas(0), meas(1), meas(2));        
+            // correction step
+            Mat part_of_K=(H*P_cur*H_trans)+Rk;
+            Mat K=(P_cur*H_trans)*part_of_K.inv();
+//             cout << "Kalman Gain: \n" << K << endl;
+            
 
-        Mat x_cur_cor=x_cur+K*(zk-H*x_cur);
-        Mat P_cur_cor=P_cur-K*H*P_cur;
-        
-        cout << "Current measurement: \n"  << zk << endl;
-        cout << "Corrected x: \n" << x_cur_cor << endl;
-        cout << "Corrected P: \n" << P_cur_cor << endl;
-        
-        P_last=P_cur_cor;
-        x_last = x_cur_cor;
-        
-        
-        stereo_cam::point out;
-        out.x = x_cur_cor.at<float>(0);
-        out.y = x_cur_cor.at<float>(1);
-        out.z = x_cur_cor.at<float>(2);
+            Mat x_cur_cor=x_cur+K*(zk-H*x_cur);
+            Mat P_cur_cor=P_cur-K*H*P_cur;
+            
+//             cout << "Current measurement: \n"  << zk << endl;
+//             cout << "Corrected x: \n" << x_cur_cor << endl;
+//             cout << "Corrected P: \n" << P_cur_cor << endl;
+            
+            P_last=P_cur_cor;
+            x_last = x_cur_cor;
+            
+            out.x = x_cur_cor.at<float>(0);
+            out.y = x_cur_cor.at<float>(1);
+            out.z = x_cur_cor.at<float>(2);
+        }
         
         estPos_pub.publish(out);
     }   
