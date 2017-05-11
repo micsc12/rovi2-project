@@ -21,7 +21,7 @@ class kalman_filter {
 
 public:
   kalman_filter() {
-  	measPos_sub = nh_.subscribe("stereo_cam/3D_Point", 100, &kalman_filter::measCb, this);
+  	measPos_sub = nh_.subscribe("/stereo_cam/3D_Point", 100, &kalman_filter::measCb, this);
   	
     estPos_pub = nh_.advertise<stereo_cam::point>("/kalman_filter/predicted_pos", 100);
     
@@ -62,6 +62,8 @@ public:
   }
   
   void measCb(const stereo_cam::point& msg) {
+  
+  	ROS_INFO("[kalman_filter_node] Received 3D_Point"); 
   
   	Mat pred = KF.predict();
 		Point3f predictPt(pred.at<float>(0), pred.at<float>(1), pred.at<float>(2));

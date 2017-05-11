@@ -1,5 +1,4 @@
 #include <ros/ros.h>
-#include <geometry_msgs/PoseStamped.h>
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
@@ -21,7 +20,6 @@ class red_ball_tracker
   image_transport::Publisher image_pub_right;
   ros::Publisher center_pub_left;
   ros::Publisher center_pub_right;
-  red_ball::center old_center;
   
 public:
   red_ball_tracker()
@@ -32,7 +30,6 @@ public:
     //image_sub_right = it_.subscribe("/image_decompressed_right", 1, &red_ball_tracker::rightCb, this);
     image_sub_left = it_.subscribe("/camera/left/image_raw", 1, &red_ball_tracker::leftCb, this);
     image_sub_right = it_.subscribe("/camera/right/image_raw", 1, &red_ball_tracker::rightCb, this);
-    //image_sub_ = it_.subscribe("/camera/left/image_raw", 1, &red_ball_tracker::imageCb, this);
       
     image_pub_left = it_.advertise("/red_ball/output_video_left", 1);
     image_pub_right = it_.advertise("/red_ball/output_video_right", 1);
@@ -52,16 +49,7 @@ public:
     }
     
     center_pub_left = nh_.advertise<red_ball::center>("red_ball/center_left", 1000);
-    red_ball::center cent = getCenter(cv_ptr, Point2f(71, 286));
-    //cout << cent << endl;
-    if (!(cent.x == 0 && cent.y == 0)) {
-    	center_pub_left.publish(cent);
-    } else {
-    	cent.x = -1;
-    	cent.y = -1;
-    	center_pub_left.publish(cent);
-    }
-    //center_pub_left.publish( getCenter(cv_ptr, Point2f(71, 286)) );
+    center_pub_left.publish(getCenter(cv_ptr));
     
     // Output modified video stream
     image_pub_left.publish(cv_ptr->toImageMsg());
@@ -81,23 +69,15 @@ public:
     }
     
     center_pub_right = nh_.advertise<red_ball::center>("red_ball/center_right", 1000);
-    red_ball::center cent = getCenter(cv_ptr, Point2f(17, 378));
-    //cout << cent << endl;
-    if (!(cent.x == 0 && cent.y == 0)) {
-    	center_pub_right.publish(cent);
-    } else {
-    	cent.x = -1;
-    	cent.y = -1;
-    	center_pub_right.publish(cent);
-    }
+    center_pub_right.publish(getCenter(cv_ptr));
     
     // Output modified video stream
     image_pub_right.publish(cv_ptr->toImageMsg());
   }
   
-  red_ball::center getCenter(cv_bridge::CvImagePtr cv_ptr, Point2f button) {
+  red_ball::center getCenter(cv_bridge::CvImagePtr cv_ptr) {
 		// Extract hue information
-    /*Mat hsv_temp, hsv[3];
+    Mat hsv_temp, hsv[3];
     cvtColor(cv_ptr->image, hsv_temp, CV_BGR2HSV); // convert image to HSV color space
     split(hsv_temp, hsv);    // split image into hue, saturation and value images
     Mat hue = hsv[0].clone();   // select hue channel
@@ -106,44 +86,23 @@ public:
 		int hue_tol = 10,
 		    hue_red = 0,
 		    hue_blue = 120,
-		    lower = hue_blue - hue_tol,
-		    upper = hue_blue + hue_tol;
-		lower = lower >= 0 ? lower : 0;
-		upper = upper < 180 ? upper : 180;
-		Mat bin;
+		    lower = 180 - hue_tol,
+		    upper = hue_tol;
+		//lower = lower >= 0 ? lower : 0;
+		//upper = upper < 180 ? upper : 180;
+		Mat bin, bin1, bin2;
 		//normalize(hue, hue);
-    inRange(hue, lower, upper, bin);
-    Mat imgThresholdedRed = bin.clone();*/
-    
-    //cout << "Jeg er herinde" << endl;
-    // red marker 3 times standard deviation
-    int lowR=90; // sample 22
-    int highR=255;
-    int lowG=0; // see identify -verbose on the sample
-    int highG=50; 
-    int lowB=0;
-    int highB=45;
-    Mat img=cv_ptr->image.clone();
-    //cvtColor(cv_ptr->image, img, CV_BGR);
-    
-    // Hide the red button
-    //Point2f button(71, 286);
-    //Point2f buttonRight(17, 378);
-    circle( img,
-    				button,
-            10,
-            Scalar(0,0,0),
-            -1,
-            8 );
-    
-    Mat imgThresholdedRed;
-    inRange(img, Scalar(lowB, lowG, lowR), Scalar(highB, highG, highR), imgThresholdedRed);
-    erode(imgThresholdedRed, imgThresholdedRed, getStructuringElement(MORPH_RECT, Size(5, 5)) );
-    dilate( imgThresholdedRed, imgThresholdedRed, getStructuringElement(MORPH_RECT, Size(5, 5)) );
-    
-    
-    
-    Mat con = imgThresholdedRed.clone();
+    inRange(hue, lower, 180, bin1);
+    inRange(hue, 0, upper, bin2);
+    bitwise_or(bin1, bin2, bin);
+    /*
+    imshow("hue", hue);
+    imshow("bin1", bin1);
+    imshow("bin2", bin2);
+    imshow("bin", bin);
+    waitKey(0);
+    */
+    Mat con = bin.clone();
     
     /// Find contours
     std::vector<std::vector<Point> > contours;
@@ -160,7 +119,6 @@ public:
     /// Find the most circular contour in the binary image
     double maxRatio = 0, curRatio;
     Point2f maxCenter, curCenter;
-    bool found_center = false;
     for (int i = 0; i < contours.size(); i++) {
       float radius;
       minEnclosingCircle(contours[i], curCenter, radius);
@@ -168,35 +126,25 @@ public:
       if ( curRatio > maxRatio ) {
         maxRatio = curRatio;
         maxCenter = curCenter;
-        found_center = true;
       }
     }
     
     // Draw ball position onto original stream
     Scalar color(0, 255, 0);
-    if (found_center) {
-    	circle( cv_ptr->image,
-		  				maxCenter,
-		          3,
-		          color,
-		          5,
-		          8 );
-    }
+    circle( cv_ptr->image,
+    				maxCenter,
+            3,
+            color,
+            5,
+            8 );
     
     red_ball::center msg_center;
-    //if (found_center) {
-    	msg_center.x = maxCenter.x;
-    	msg_center.y = maxCenter.y;
-    //}
-    /*else {
-    	msg_center = old_center;
-    	cout << "Couldn't find center, outputting " << msg_center << endl;
-    }
+    msg_center.x = maxCenter.x;
+    msg_center.y = maxCenter.y;
+    
     //imshow("bin", bin);
     //imshow("hue", hue);
     //waitKey(0);
-    
-    old_center = msg_center;*/
     
     return(msg_center);
   }

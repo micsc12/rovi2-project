@@ -6,10 +6,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <stdio.h>
-
-
-#include </home/jesper/catkin_ws/devel/include/red_ball/center.h>
-#include </home/jesper/catkin_ws/devel/include/stereo_cam/point.h>
+#include <red_ball/center.h>
+#include <stereo_cam/point.h>
 
 
 #include <stdio.h>
@@ -34,7 +32,7 @@ public:
         //center_sub_left = nh_.subscribe("red_ball/center_left", 1,stereopsis::leftCB, this); // 1000 queue size normally
         center_sub_left = nh_.subscribe("red_ball/center_left", 1000,&stereopsis::leftCb,this);
         center_sub_right = nh_.subscribe("red_ball/center_right", 1000,&stereopsis::rightCb, this);
-        position_3D = nh_.advertise<stereo_cam::point>("red_ball/3D_Point",100);
+        position_3D = nh_.advertise<stereo_cam::point>("stereo_cam/3D_Point",100);
         setup();
     }
 
@@ -73,7 +71,7 @@ public:
         camera_r.at<double>(1,2)=463.621512;
         camera_r.at<double>(2,2)=1;
 
-        cout << camera_r << endl;
+        //cout << camera_r << endl;
         Mat trans_l=Mat::eye(4, 4, CV_64F);
         Mat trans_r=Mat::eye(4, 4, CV_64F);
         trans_r.at<double>(0,3)=-0.12;
@@ -123,6 +121,16 @@ public:
         {
             right_center=false;
             left_center=false;
+            
+            stereo_cam::point result;
+            
+            if (right.x == -1 || left.x == -1) {
+            	result.x = -1;
+            	result.y = -1;
+            	result.z = -1;
+            	position_3D.publish(result);
+            	return;
+            }
 
             
             Mat pnts3D(1, 1, CV_64FC4);
@@ -152,7 +160,6 @@ public:
             Mat part=A.t()*A;
             Mat M=part.inv()*A.t()*b;
         
-            stereo_cam::point result;
             result.x=(M.at<double>(0, 0))*1000; // result in meters
             result.y=(M.at<double>(1, 0))*1000;
             result.z=(M.at<double>(2, 0))*1000;
