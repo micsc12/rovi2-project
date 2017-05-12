@@ -126,7 +126,7 @@ public:
     	
     	Point2f center_pos(pos_left.at<double>(0), pos_left.at<double>(1));
     	Point2f center_pred(pred_left.at<double>(0), pred_left.at<double>(1));
-    	cout << "Stereo pos: " << center_pos << "\nKalman pred: " << center_pred << endl;
+    	//cout << "Stereo pos: " << center_pos << "\nKalman pred: " << center_pred << endl;
     	
     	Point2f center_dummy(500.5,500.5);
     	
