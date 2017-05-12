@@ -58,9 +58,8 @@ public:
     planner() : nodehandle_("~"), sdsip_(nodehandle_, "caros_universalrobot")
     {
         ROS_INFO("This node needs a workcell located at workcell/WC3_scene.wc.xml");
-        ROS_INFO("Check that you are running this node from catkin workspace Idiot !!!");
 
-        wc = rw::loaders::WorkCellLoader::Factory::load("/home/petr/catkin_ws/workcell/WC3_Scene.wc.xml");
+        wc = rw::loaders::WorkCellLoader::Factory::load("workcell/WC3_Scene.wc.xml");
         if (wc == NULL) 
         {
             ROS_INFO(" Workcell not found.");
@@ -173,7 +172,8 @@ public:
     rw::math::Q convert_to_q(double x, double y, double z)
     {
         rw::math::Vector3D<double> translation(x,y,z);
-        rw::math::Rotation3D<double> current_rotation,roll,pitch,yaw;
+        rw::math::RPY<double> rotation(0.0,-1.5,1.5); //-1.5, -1.5, 1.5
+        //unused: rw::math::Rotation3D<double> current_rotation,roll,pitch,yaw;
 
         // getQ from device, setQ in currentState, get rotation from the device.
         rw::math::Q currentQ = sdsip_.getQ();
@@ -186,7 +186,7 @@ public:
 
         std::vector<rw::math::Q> solutions,new_solutions;
         // Get solutions for all possibble orientations:
-        for (int x = 0; x < 200; x+=20)
+        /*for (int x = 0; x < 200; x+=20)
         {
             yaw = getXrotation(x);
             for (int y = 0; y < 200; y+=20)
@@ -194,16 +194,16 @@ public:
                 pitch = getYrotation(y);
                 for (int z = 0; z < 200; z+=20)
                 {
-                    roll = getZrotation(z);
+                    roll = getZrotation(z);*/
 
-                    current_rotation = roll*pitch*yaw;
-                    rw::math::Transform3D<double> transformation(translation,current_rotation);
+                    //current_rotation = roll*pitch*yaw;
+                    rw::math::Transform3D<double> transformation(translation,rotation);
 
                     new_solutions = urIK->solve(transformation, currentState);
                     solutions.insert(solutions.end(),new_solutions.begin(),new_solutions.end());
-                }
+                /*}
             }
-        }
+        }*/
 
         // If no solutions exist, the service failed:
         if(solutions.size() == 0)
@@ -442,7 +442,10 @@ public:
             {
                 ROS_INFO_STREAM("Moving to configuration " << i <<" : " << path[i] << " ...");
                 // Testing out moveptp
-                //return_stat = sdsip_.movePtp(path[i]);
+
+
+                if (calibration)
+                {
                 return_stat = sdsip_.moveServoQ(path[i]);
                 
                 // Make sure, that new messages from robot are current
@@ -454,6 +457,12 @@ public:
                 // Print out last Q error from path, before changing targetQ configuration
                 //ROS_INFO_STREAM("Final error from path[" << i << "] configuration: " << error_from_target(path[i]) );
                 //t.pause();
+                }
+                else
+                {
+                    return_stat = sdsip_.movePtp(path[i]);
+                }
+
                 
             }
             
