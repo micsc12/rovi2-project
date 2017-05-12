@@ -12,11 +12,15 @@
  </Frame>
  <Include file="UR/UR.wc.xml" />
 
+
   <Frame name="WSG50" refframe="UR1.TCP">
       <RPY> 180 0 -90 </RPY> <Pos> -0.0134 0 0 </Pos> <!-- x was 0 and z pos was 0.005 and x was 0-->
   </Frame>
   <Include file="WSG50/WSG50.wc.xml"/>
 
+<Frame name="BallFrame" refframe="WSG50">
+<RPY> -180 0 -90 </RPY> <Pos> 0 -0.13 0</Pos> <!-- x was 0 and z pos was 0.005 and x was 0-->
+</Frame> 
 
  <Frame name="WorkPiece" refframe="WORLD">  
  <RPY>0 0 0.02 </RPY> <Pos> -0.09 -0.770 1.072 </Pos>
