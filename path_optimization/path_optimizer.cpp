@@ -9,7 +9,7 @@ using namespace rw::models;
 Pathoptimizerr::Pathoptimizerr(QPath path)
 {
     internal_path = path;
-    dist_initial = lenghtOfPathQSpace();
+    dist_initial = lenghtOfPathQSpace(internal_path);
     wc = rw::loaders::WorkCellLoader::Factory::load("workcell/WC3_Scene.wc.xml");
     device = wc->findDevice("UR1");
 
@@ -31,7 +31,7 @@ void Pathoptimizerr::prunePath()
     {
         Q start = internal_path[i-2];
         Q goal = internal_path[i];
-        if (checkPathSegment(start,goal,0.05))
+        if (checkPathSegment(start,goal,0.01))
         {
             // If collisionfree, delete redundant configuration!
             internal_path.erase(internal_path.begin()+i-1);
@@ -52,30 +52,52 @@ void Pathoptimizerr::prunePath()
 
 void Pathoptimizerr::shortcutPath()
 {
-    int numberOfTrials = 1000; // How many times the algorithm tries to shortcut the path.
+    discretizePath(0.2);
+    std::cout << discretized_path.size() << std::endl;
+    int numberOfTrials = 100; // How many times the algorithm tries to shortcut the path.
     Q point1, point2;
     int index1, index2;
     int divisor = RAND_MAX/discretized_path.size();
     for (int i = 0; i < numberOfTrials; i++)
     {
+
         // Sample two points:
         index1 = std::rand() / divisor;
         index2 = std::rand() / divisor;
+        while (index2 == index1 || index2-1 == index1 || index2+1 == index1) //Make sure that we are not trying to shortcut to and from the same node..
+        {
+            index2 = std::rand() / divisor;
+        }
+
+
+        //std::cout << "indexes:  " << index1 << " " << index2 << " size: " << discretized_path.size() << std::endl;
 
         point1 = discretized_path[index1];
         point2 = discretized_path[index2];
 
         // Try to connect them:
-        if(checkPathSegment(point1, point2, 0.1))
+        if(checkPathSegment(point1, point2, 0.01))
         {
+            //std::cout << i << std::endl;
             // Shortcut exists, remove every point between;
             if (index1 < index2)
-                discretized_path.erase(discretized_path.begin()+index1,discretized_path.begin()+index2);
+                discretized_path.erase(discretized_path.begin()+index1+1,discretized_path.begin()+index2-1);
             else
-                discretized_path.erase(discretized_path.begin()+index2,discretized_path.begin()+index1);
+                discretized_path.erase(discretized_path.begin()+index2+1,discretized_path.begin()+index1-1);
 
+            if (discretized_path.size() == 3)
+            {
+                if (index1 < index2)
+                    discretized_path.erase(discretized_path.begin()+index1+1);
+                else
+                    discretized_path.erase(discretized_path.begin()+index2+1);
+            }
             // Calculate new divisor:
             divisor = RAND_MAX/discretized_path.size();
+        }
+        if(discretized_path.size() == 2)
+        {
+            break;
         }
     }
 
@@ -168,13 +190,13 @@ void Pathoptimizerr::discretizePath(double stepsize)
 
 
 // Returns the length of the internal path
-double Pathoptimizerr::lenghtOfPathQSpace()
+double Pathoptimizerr::lenghtOfPathQSpace(QPath path)
 {
     double ret_val = 0;
     rw::math::Q lastQ,currentQ;
-    for (uint i = 1; i < internal_path.size(); i++)
+    for (uint i = 1; i < path.size(); i++)
     {
-        ret_val += distance(internal_path[i-1], internal_path[i]);
+        ret_val += distance(path[i-1], path[i]);
     }
     return ret_val;
 }

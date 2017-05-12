@@ -10,6 +10,7 @@
 #include <rw/kinematics.hpp>
 #include <rw/kinematics/MovableFrame.hpp>
 #include <rw/kinematics/Frame.hpp>
+#include <chrono>
 
 #include "path_optimizer.hpp"
 
@@ -67,11 +68,17 @@ int main(int argc, char** argv) {
 
 
     cout << "Path length:" << optimizer.internal_path.size() <<  endl;
-    cout << optimizer.lenghtOfPathQSpace() << endl;
+    cout << optimizer.lenghtOfPathQSpace(optimizer.internal_path) << endl;
     optimizer.prunePath();
     cout << "path pruning done.." << endl;
     cout << "Path length:" << optimizer.internal_path.size() <<  endl;
-    cout << optimizer.lenghtOfPathQSpace() << endl;
+    cout << optimizer.lenghtOfPathQSpace(optimizer.internal_path) << endl;
+    optimizer.shortcutPath();
+    cout << "path shortcut done.." << endl;
+    cout << "Path length:" << optimizer.discretized_path.size() <<  endl;
+    cout << optimizer.lenghtOfPathQSpace(optimizer.discretized_path) << endl;
+
+
 
     for (int i = 0; i < 4; i++)
     {

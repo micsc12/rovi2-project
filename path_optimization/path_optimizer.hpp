@@ -42,9 +42,10 @@ public:
 
 
 
-    double lenghtOfPathQSpace(); // Returns the length of the internal path
+    double lenghtOfPathQSpace(QPath); // Returns the length of the internal path
 
     double distance(Q,Q);
+
 
 
 
