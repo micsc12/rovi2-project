@@ -5,7 +5,7 @@
    <!--node name = "" pkg = "" type = "" respawn = "true" output = "screen" args = ""/-->
    <!--Dummy image publisher for WiFi setup testing-->
    <!--node name = "dummy" pkg = "dummy_image" type = "dummy_image_node" respawn = "true" output = "screen" args = ""/-->
-	<node pkg="rosbag" type="play" name="rosbag" args="-d 2 /home/bjarkips/workspace/test4.bag"/>
+	<node pkg="rosbag" type="play" name="rosbag" args="-d 2 /home/bjarkips/test10.bag"/>
 
 	<!--node name = "comp_left" pkg = "image_transport" type = "republish" respawn = "true" output = "screen" args = "raw in:=/camera/left/image_color compressed out:=/image_compressed_left"/>
    <node name = "comp_right" pkg = "image_transport" type = "republish" respawn = "true" output = "screen" args = "raw in:=/camera/right/image_color compressed out:=/image_compressed_right"/>

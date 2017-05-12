@@ -29,6 +29,8 @@ class kalman_filter {
     Mat_<float> H;
     Mat_<float> H_trans;
     float processNoise , measurementNoise, dt, v, a;
+    
+    bool eval;
 
 public:
     kalman_filter() {
@@ -43,6 +45,7 @@ public:
         v = dt;
         a = .5*dt*dt;
         //KF = KalmanFilter(9,3,0);
+        //ROS_INFO("[kalman_filter_node][WARNING] Using position-only model");
         F = (Mat_<float>(9, 9) <<				1, 0, 0, v, 0, 0, a, 0, 0, 
                                         0, 1, 0, 0, v, 0, 0, a, 0, 
                                         0, 0, 1, 0, 0, v, 0, 0, a, 
@@ -114,6 +117,12 @@ public:
         */
         meas = Mat_<float>(3,1);
         meas.setTo(Scalar(0));
+        
+        eval = true;
+        
+        if (eval) {
+        	cout << "measx measy measz corx cory corz corx' cory' corz' corx'' cory'' corz'' predx predy predz predx' predy' predz' predx'' predy'' predz'' " << endl;
+        }
     }
   
     void measCb(const stereo_cam::point& msg) {      
@@ -164,6 +173,17 @@ public:
             out.x = x_cur_cor.at<float>(0);
             out.y = x_cur_cor.at<float>(1);
             out.z = x_cur_cor.at<float>(2);
+        }
+        
+        if (eval) {
+        	string sp = " ";
+        	cout << msg.x << sp << msg.y << sp << msg.z << sp 
+        		<< out.x << sp << out.y << sp << out.z 
+        		<< sp << x_last.at<float>(3) << sp << x_last.at<float>(4) << sp << x_last.at<float>(5) << sp 
+        		<< x_last.at<float>(6) << sp << x_last.at<float>(7) << sp << x_last.at<float>(8) << sp
+        		<< x_cur.at<float>(0) << sp << x_cur.at<float>(1) << sp << x_cur.at<float>(2) << sp
+        		<< x_cur.at<float>(3) << sp << x_cur.at<float>(4) << sp << x_cur.at<float>(5) << sp
+        		<< x_cur.at<float>(6) << sp << x_cur.at<float>(7) << sp << x_cur.at<float>(8) << sp << endl;
         }
         
         estPos_pub.publish(out);

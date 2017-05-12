@@ -7,8 +7,8 @@
    <!--node name = "dummy" pkg = "dummy_image" type = "dummy_image_node" respawn = "true" output = "screen" args = ""/-->
 
 
-   <!--node name = "decomp_left" pkg = "image_transport" type = "republish" respawn = "true" output = "screen" args = "compressed in:=/image_compressed_left raw out:=/image_decompressed_left"/>
-   <node name = "decomp_right" pkg = "image_transport" type = "republish" respawn = "true" output = "screen" args = "compressed in:=/image_compressed_right raw out:=/image_decompressed_right"/-->
+   <node name = "decomp_left" pkg = "image_transport" type = "republish" respawn = "true" output = "screen" args = "compressed in:=/image_compressed_left raw out:=/image_decompressed_left"/>
+   <node name = "decomp_right" pkg = "image_transport" type = "republish" respawn = "true" output = "screen" args = "compressed in:=/image_compressed_right raw out:=/image_decompressed_right"/>
    <node name = "vis2d" pkg = "red_ball" type = "red_ball_node" respawn = "true" output = "screen" args = ""/>
    <node name = "stereo" pkg = "stereo_cam" type = "stereo_cam_node" respawn = "true" output = "screen" args = ""/>
    <node name = "filter" pkg = "kalman_filter" type = "kalman_filter_node" respawn = "true" output = "screen" args = ""/>

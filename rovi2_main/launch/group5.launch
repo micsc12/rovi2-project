@@ -1,5 +1,6 @@
-<include file="$(find pointgrey_camera_driver)/launch/bumblebee.launch">
 <launch>
+	<include file="$(find pointgrey_camera_driver)/launch/bumblebee.launch"/>
+
 	<!--LAUNCH FILE TO BE RUN ON WORKSTATION - RUN THIS BEFORE LAUNCHING ON LAPTOP-->
 	
    <node name = "comp_left" pkg = "image_transport" type = "republish" respawn = "true" output = "screen" args = "raw in:=/camera/left/image_color compressed out:=/image_compressed_left"/>

@@ -28,10 +28,10 @@ public:
     : it_(nh_)
   {
     // Subscribe to input video feed and publish output video feed
-    //image_sub_left = it_.subscribe("/image_decompressed_left", 1, &red_ball_tracker::leftCb, this);
-    //image_sub_right = it_.subscribe("/image_decompressed_right", 1, &red_ball_tracker::rightCb, this);
-    image_sub_left = it_.subscribe("/camera/left/image_raw", 1, &red_ball_tracker::leftCb, this);
-    image_sub_right = it_.subscribe("/camera/right/image_raw", 1, &red_ball_tracker::rightCb, this);
+    image_sub_left = it_.subscribe("/image_decompressed_left", 1, &red_ball_tracker::leftCb, this);
+    image_sub_right = it_.subscribe("/image_decompressed_right", 1, &red_ball_tracker::rightCb, this);
+    //image_sub_left = it_.subscribe("/camera/left/image_raw", 1, &red_ball_tracker::leftCb, this);
+    //image_sub_right = it_.subscribe("/camera/right/image_raw", 1, &red_ball_tracker::rightCb, this);
     //image_sub_ = it_.subscribe("/camera/left/image_raw", 1, &red_ball_tracker::imageCb, this);
       
     image_pub_left = it_.advertise("/red_ball/output_video_left", 1);
