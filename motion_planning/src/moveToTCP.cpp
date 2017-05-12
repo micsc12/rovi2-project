@@ -58,9 +58,19 @@ public:
     planner() : nodehandle_("~"), sdsip_(nodehandle_, "caros_universalrobot")
     {
         ROS_INFO("This node needs a workcell located at workcell/WC3_scene.wc.xml");
+        ROS_INFO("Check that you are running this node from catkin workspace Idiot !!!");
 
-        wc = rw::loaders::WorkCellLoader::Factory::load("workcell/WC3_Scene.wc.xml");
+        wc = rw::loaders::WorkCellLoader::Factory::load("/home/petr/catkin_ws/workcell/WC3_Scene.wc.xml");
+        if (wc == NULL) 
+        {
+            ROS_INFO(" Workcell not found.");
+        }
+        
         device = wc->findDevice("UR1");
+        if (device == NULL) 
+        {
+            ROS_INFO(" Device not found.");
+        }
 
         currentState = wc->getDefaultState();
         // find frame of TCP
@@ -68,6 +78,13 @@ public:
         if (TCP_Frame == NULL) 
         {
             ROS_INFO(" TCP Frame not found.");
+        }
+        
+        // find frame of the marker
+        Marker_Frame = wc->findFrame("WSG50.MarkerFrame");
+        if (Marker_Frame == NULL) 
+        {
+            ROS_INFO(" Marker Frame not found.");
         }
         //Base_Frame = wc->findFrame("Base");
 
@@ -100,15 +117,7 @@ public:
         ofsQ.open("Calibration_camera_robot_Q.txt", std::ofstream::out);
 
     }
-    /*//Maybe not needed after all
-    rw::math::Q convert_to_q(rw::math::Transform3D<double> TCP)
-    {
-       rw::math::Q return_val((size_t) 6,(double)0.0);
-
-       return return_val;
-    }
-    //*/
-
+    
     // This function is used for moving robot around the cell while keeping constant orientation of TCP pointing towards camera 
     rw::math::Q convert_to_q_calibration(double x, double y, double z)
     {
@@ -137,7 +146,7 @@ public:
         double max_dist = 10000;
         rw::math::Q difference;
 
-        ROS_INFO_STREAM(solutions.size() << " solutions found. Selecting the best one!");
+        ROS_INFO_STREAM(solutions.size() << " solutions found for IK. Selecting the best one!");
 
 
         for (int i = 0; i < solutions.size(); i++)
@@ -208,7 +217,7 @@ public:
         double max_dist = 10000;
         rw::math::Q difference;
 
-        ROS_INFO_STREAM(solutions.size() << " solutions found. Selecting the best one!");
+        ROS_INFO_STREAM(solutions.size() << " solutions found for IK. Selecting the best one!");
 
 
         for (int i = 0; i < solutions.size(); i++)
@@ -336,20 +345,36 @@ public:
     }
 
 
-    //Moves the device to X,y,z but keeping its position.
+    //Moves the device to X,y,z but keeping its orientation.
     bool move_to_tcp(motion_planning::moveToTCP::Request  &req,
                      motion_planning::moveToTCP::Response &res)
     {
-        ROS_INFO("Moving....");
+        ROS_INFO("Calling Inverse kinematics ...");
 
         bool return_stat;
         res.ok = 1;
         rw::math::Q goal;
-        //goal = convert_to_q(req.x,req.y,req.z);
+        goal = convert_to_q(req.x,req.y,req.z);
+        
+        return_stat = move_device_to_q(goal);
+
+        return return_stat;
+    }
+    
+    //Moves the device to X,y,z but keeping its orientation towards the camera.
+    bool move_to_tcp_calibration(motion_planning::moveToTCP::Request  &req,
+                     motion_planning::moveToTCP::Response &res)
+    {
+        ROS_INFO("Calling Path planner ...");
+
+        bool return_stat;
+        res.ok = 1;
+        rw::math::Q goal;
+        
         // for calibration keep TCP pointing to the camera
         goal = convert_to_q_calibration(req.x,req.y,req.z);
         
-        return_stat = move_device_to_q(goal);
+        return_stat = move_device_to_q(goal, true);
 
         return return_stat;
     }
@@ -358,7 +383,7 @@ public:
     bool move_to_q(motion_planning::moveToQ::Request  &req,
                    motion_planning::moveToQ::Response &res)
     {
-        ROS_INFO("Moving....");
+        ROS_INFO("Calling Path planner ...");
 
         bool return_stat;
         res.ok = 1;
@@ -394,7 +419,7 @@ public:
     }
 
     // Tells the device to servo to Q
-    bool move_device_to_q(rw::math::Q configuration)
+    bool move_device_to_q(rw::math::Q configuration, bool calibration = false)
     {
         bool return_stat = true;
 
@@ -419,62 +444,57 @@ public:
                 // Testing out moveptp
                 //return_stat = sdsip_.movePtp(path[i]);
                 return_stat = sdsip_.moveServoQ(path[i]);
-                /*
+                
                 // Make sure, that new messages from robot are current
                 wait_for_current_messages();
                 
                 // for some reason isMovin() doesn't work to wait until movement is finished
-                t.resetAndResume();
+                //t.resetAndResume();
                 wait_to_finish_move(path[i]);
                 // Print out last Q error from path, before changing targetQ configuration
-                ROS_INFO_STREAM("Final error from path[" << i << "] configuration: " << error_from_target(path[i]) );
-                t.pause();
-                */
+                //ROS_INFO_STREAM("Final error from path[" << i << "] configuration: " << error_from_target(path[i]) );
+                //t.pause();
+                
             }
-            // for camera calibration -> Wait until movement is finished
-            ros::Duration(10).sleep();
-            ros::spinOnce();
             
             ROS_INFO("Movement done");
-            
-            // Get current tranformation from base to TCP
-            currentQ = get_current_Q();
-            device->setQ(currentQ, currentState);
-            ROS_INFO_STREAM("Q after move: " << currentQ);
-            ofsQ << currentQ << std::endl;
-            
-            //rw::math::Transform3D<double> 
-            auto baseTtcp = device->baseTframe(TCP_Frame, currentState);
-            ROS_INFO_STREAM("TCP position in Robot base frame[x, y, z]: " << baseTtcp.P());
-            
-            /*
-            auto worldTbase = device->worldTbase(currentState);
-            
-            ROS_INFO_STREAM("TCP position in World frame[x, y, z]: " << (worldTbase * baseTtcp).P());
-            */
-            
-            //ROS_INFO_STREAM(baseTtcp);
-             
-            // Transformation from TCP to marker - will stay constant
-            // ToDo move it to better place
-            rw::math::Transform3D<double> tcpTmarker(rw::math::Vector3D<double>(0,0,0));
-            
-            // Compute transform from base to marker on the TCP
-            rw::math::Transform3D<double> baseTmarker = baseTtcp * tcpTmarker;
-            // Get marker 3D position
-            rw::math::Vector3D<double> markerP = baseTmarker.P();
-            ROS_INFO_STREAM("Marker position [x, y, z]: " << markerP);
-            
-            ofs << markerP << std::endl;
-            /*
-            // Compute Transformation from cameraFrame to textureFrame
-            rw::math::Transform3D<double> cameraTtexture = rw::kinematics::Kinematics::frameTframe(cameraFrame, textureFrame, _state);
-            */
+            if (calibration)
+            {
+                ROS_INFO("CALIBRATION: Waiting for robot to COMPLETELY finish move ...");
+                // for camera calibration -> Wait until movement is COMPLETELY finished - 10s to be on safe side
+                ros::Duration(10).sleep();
+                ros::spinOnce();
+                
+                // Get current Q configuration
+                currentQ = get_current_Q();
+                device->setQ(currentQ, currentState);
+                ROS_INFO_STREAM("Q after move: " << currentQ);
+                // save it to file
+                ofsQ << currentQ << std::endl;
+                
+                // Get transformation from base to TCP frame 
+                auto baseTtcp = device->baseTframe(TCP_Frame, currentState);
+                ROS_INFO_STREAM("TCP position in Robot base frame[x, y, z]: " << baseTtcp.P());
+                
+                // Compute transform from base to marker on the TCP
+                rw::math::Transform3D<double> baseTmarker = device->baseTframe(Marker_Frame, currentState);
+                // Get marker 3D position
+                rw::math::Vector3D<double> markerP = baseTmarker.P();
+                ROS_INFO_STREAM("Marker position [x, y, z]: " << markerP);
+                
+                ofs << markerP << std::endl;
+            }
             
         }
         else
         {
             ROS_INFO("Path was NOT found.");
+            
+            rw::kinematics::State goalState = wc->getDefaultState(); 
+            device->setQ(currentQ,goalState);
+            if (colDetect->inCollision(goalState))
+                ROS_INFO("Goal is in collision!");
+                
             return_stat = false;
         }
 
@@ -492,7 +512,8 @@ public:
         }
         else
         {
-            ROS_INFO("Goal is in collision!");
+            
+            
             return_stat = false;
         }
         */
@@ -508,6 +529,7 @@ protected:
     rw::models::Device::Ptr device;
     rw::kinematics::State  currentState;
     rw::kinematics::Frame* TCP_Frame;
+    rw::kinematics::Frame* Marker_Frame;
 
     rw::proximity::CollisionStrategy::Ptr colStrat;
     rw::proximity::CollisionDetector::Ptr colDetect;
@@ -643,6 +665,7 @@ protected:
         }
         
         // close to targetQ -> call speed check functions
+        // function overloaded by no arguments
         return approaching_goal_configuration();
         
     }
@@ -660,6 +683,8 @@ int main(int argc, char **argv)
     ros::ServiceServer service = n.advertiseService("moveToQ", &planner::move_to_q, &planner1);
     ros::ServiceServer service2 = n.advertiseService("moveToTCP", &planner::move_to_tcp, &planner1);
     ros::ServiceServer service3 = n.advertiseService("moveToHome", &planner::move_to_home, &planner1);
+    ros::ServiceServer service4 = n.advertiseService("moveToTCPcalibration", &planner::move_to_tcp_calibration, &planner1);
+    
     ROS_INFO("Nice motionplanning ready!");
     ros::spin();
 

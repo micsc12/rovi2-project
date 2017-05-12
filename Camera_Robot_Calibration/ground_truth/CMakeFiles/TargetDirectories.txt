@@ -1,3 +1,3 @@
-/home/bjarkips/workspace/ground_truth/CMakeFiles/rebuild_cache.dir
-/home/bjarkips/workspace/ground_truth/CMakeFiles/edit_cache.dir
-/home/bjarkips/workspace/ground_truth/CMakeFiles/ground_truth.dir
+/media/petr/HDD/SDU/RoVi2/Project/rovi2-project/Camera_Robot_Calibration/ground_truth/CMakeFiles/rebuild_cache.dir
+/media/petr/HDD/SDU/RoVi2/Project/rovi2-project/Camera_Robot_Calibration/ground_truth/CMakeFiles/edit_cache.dir
+/media/petr/HDD/SDU/RoVi2/Project/rovi2-project/Camera_Robot_Calibration/ground_truth/CMakeFiles/ground_truth.dir

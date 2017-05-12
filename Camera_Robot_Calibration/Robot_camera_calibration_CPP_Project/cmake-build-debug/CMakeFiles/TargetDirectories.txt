@@ -1,0 +1,3 @@
+/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/CMakeFiles/edit_cache.dir
+/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/CMakeFiles/Robot_camera_calibration.dir

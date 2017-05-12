@@ -126,7 +126,7 @@ add_library(kalman_filter
 add_dependencies(kalman_filter kalman_filter_generate_dependencies_cpp ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(kalman_filter_node src/kalman_filter_node.cpp)
+add_executable(kalman_filter_node src/version_with_own_implemenation/kalman_filter_node.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

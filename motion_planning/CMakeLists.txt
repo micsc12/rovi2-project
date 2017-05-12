@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(motion_planning)
 
+set(node_name "${PROJECT_NAME}_node")
+
 ## Add support for C++11, supported in ROS Kinetic and newer
-# add_definitions(-std=c++11)
+add_definitions(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -128,9 +130,9 @@ include_directories(
 )
 
 
-add_executable(motion_planning src/moveToTCP.cpp)
-target_link_libraries(motion_planning ${catkin_LIBRARIES})
-add_dependencies(motion_planning beginner_tutorials_generate_messages_cpp)
+add_executable(${node_name} src/moveToTCP.cpp)
+target_link_libraries(${node_name} ${catkin_LIBRARIES})
+add_dependencies(${node_name} beginner_tutorials_generate_messages_cpp)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

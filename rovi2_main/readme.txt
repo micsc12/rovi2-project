@@ -21,6 +21,24 @@ For Wifi setup, run EITHER:
 	OR if your IP is already configured, simply run
 	roslaunch rovi2_main main_wifi.launch
 	
+
+For cell setup:
+	
+	FIRST, on the workstation, run
+		roslaunch pointgrey_camera_driver bumblebee.launch
+	
+	AFTER, on your laptop, run EITHER:
+		roscd rovi2_main/launch
+		./cell.sh
+		-This sets your ROS_IP to $(hostname -I) before calling the launch script
+		
+		OR if your IP is already configured, simply run
+		roslaunch rovi2_main main_cell.launch
+	
+	
+	
+IF COMPRESSION IS REQUIRED REFER BELOW
+-----------------------------------------------
 For cell setup:
 	FIRST, on the workstation, run
 		roslaunch ~/Desktop/group5/group5.launch
@@ -31,9 +49,4 @@ For cell setup:
 		-This sets your ROS_IP to $(hostname -I) before calling the launch script
 		
 		OR if your IP is already configured, simply run
-		roslaunch rovi2_main main_cell.launch
-		
-		
-		
-NOTE: group5.launch is currently outdated but a working copy of it is on the workstation desktop in cell 3.
-	
+		roslaunch rovi2_main main_cell.launch	

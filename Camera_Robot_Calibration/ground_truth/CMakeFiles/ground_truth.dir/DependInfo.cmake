@@ -4,14 +4,14 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/bjarkips/workspace/ground_truth/main.cpp" "/home/bjarkips/workspace/ground_truth/CMakeFiles/ground_truth.dir/main.cpp.o"
+  "/media/petr/HDD/SDU/RoVi2/Project/rovi2-project/Camera_Robot_Calibration/ground_truth/main.cpp" "/media/petr/HDD/SDU/RoVi2/Project/rovi2-project/Camera_Robot_Calibration/ground_truth/CMakeFiles/ground_truth.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "/opt/ros/kinetic/include/opencv-3.1.0-dev/opencv"
-  "/opt/ros/kinetic/include/opencv-3.1.0-dev"
+  "/opt/ros/kinetic/include/opencv-3.2.0-dev"
+  "/opt/ros/kinetic/include/opencv-3.2.0-dev/opencv"
   )
 
 # Targets to which this target links.

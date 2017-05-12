@@ -21,6 +21,7 @@ class red_ball_tracker
   image_transport::Publisher image_pub_right;
   ros::Publisher center_pub_left;
   ros::Publisher center_pub_right;
+  red_ball::center old_center;
   
 public:
   red_ball_tracker()
@@ -51,7 +52,16 @@ public:
     }
     
     center_pub_left = nh_.advertise<red_ball::center>("red_ball/center_left", 1000);
-    center_pub_left.publish(getCenter(cv_ptr));
+    red_ball::center cent = getCenter(cv_ptr, Point2f(71, 286));
+    //cout << cent << endl;
+    if (!(cent.x == 0 && cent.y == 0)) {
+    	center_pub_left.publish(cent);
+    } else {
+    	cent.x = -1;
+    	cent.y = -1;
+    	center_pub_left.publish(cent);
+    }
+    //center_pub_left.publish( getCenter(cv_ptr, Point2f(71, 286)) );
     
     // Output modified video stream
     image_pub_left.publish(cv_ptr->toImageMsg());
@@ -71,13 +81,21 @@ public:
     }
     
     center_pub_right = nh_.advertise<red_ball::center>("red_ball/center_right", 1000);
-    center_pub_right.publish(getCenter(cv_ptr));
+    red_ball::center cent = getCenter(cv_ptr, Point2f(17, 378));
+    //cout << cent << endl;
+    if (!(cent.x == 0 && cent.y == 0)) {
+    	center_pub_right.publish(cent);
+    } else {
+    	cent.x = -1;
+    	cent.y = -1;
+    	center_pub_right.publish(cent);
+    }
     
     // Output modified video stream
     image_pub_right.publish(cv_ptr->toImageMsg());
   }
   
-  red_ball::center getCenter(cv_bridge::CvImagePtr cv_ptr) {
+  red_ball::center getCenter(cv_bridge::CvImagePtr cv_ptr, Point2f button) {
 		// Extract hue information
     /*Mat hsv_temp, hsv[3];
     cvtColor(cv_ptr->image, hsv_temp, CV_BGR2HSV); // convert image to HSV color space
@@ -94,18 +112,30 @@ public:
 		upper = upper < 180 ? upper : 180;
 		Mat bin;
 		//normalize(hue, hue);
-    inRange(hue, lower, upper, bin);*/
+    inRange(hue, lower, upper, bin);
+    Mat imgThresholdedRed = bin.clone();*/
     
-    cout << "Jeg er herinde" << endl;
+    //cout << "Jeg er herinde" << endl;
     // red marker 3 times standard deviation
-    int lowR=84; // sample 22
+    int lowR=90; // sample 22
     int highR=255;
     int lowG=0; // see identify -verbose on the sample
-    int highG=20+14*3; 
+    int highG=50; 
     int lowB=0;
-    int highB=3+3*11;
+    int highB=45;
     Mat img=cv_ptr->image.clone();
     //cvtColor(cv_ptr->image, img, CV_BGR);
+    
+    // Hide the red button
+    //Point2f button(71, 286);
+    //Point2f buttonRight(17, 378);
+    circle( img,
+    				button,
+            10,
+            Scalar(0,0,0),
+            -1,
+            8 );
+    
     Mat imgThresholdedRed;
     inRange(img, Scalar(lowB, lowG, lowR), Scalar(highB, highG, highR), imgThresholdedRed);
     erode(imgThresholdedRed, imgThresholdedRed, getStructuringElement(MORPH_RECT, Size(5, 5)) );
@@ -130,6 +160,7 @@ public:
     /// Find the most circular contour in the binary image
     double maxRatio = 0, curRatio;
     Point2f maxCenter, curCenter;
+    bool found_center = false;
     for (int i = 0; i < contours.size(); i++) {
       float radius;
       minEnclosingCircle(contours[i], curCenter, radius);
@@ -137,25 +168,35 @@ public:
       if ( curRatio > maxRatio ) {
         maxRatio = curRatio;
         maxCenter = curCenter;
+        found_center = true;
       }
     }
     
     // Draw ball position onto original stream
     Scalar color(0, 255, 0);
-    circle( cv_ptr->image,
-    				maxCenter,
-            3,
-            color,
-            5,
-            8 );
+    if (found_center) {
+    	circle( cv_ptr->image,
+		  				maxCenter,
+		          3,
+		          color,
+		          5,
+		          8 );
+    }
     
     red_ball::center msg_center;
-    msg_center.x = maxCenter.x;
-    msg_center.y = maxCenter.y;
-    
+    //if (found_center) {
+    	msg_center.x = maxCenter.x;
+    	msg_center.y = maxCenter.y;
+    //}
+    /*else {
+    	msg_center = old_center;
+    	cout << "Couldn't find center, outputting " << msg_center << endl;
+    }
     //imshow("bin", bin);
     //imshow("hue", hue);
     //waitKey(0);
+    
+    old_center = msg_center;*/
     
     return(msg_center);
   }
