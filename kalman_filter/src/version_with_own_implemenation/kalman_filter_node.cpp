@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stereo_cam/point.h>
 #include <opencv2/video/tracking.hpp>
+#include <iostream>
+#include <fstream>
 
 using namespace cv;
 using namespace std;
@@ -31,6 +33,7 @@ class kalman_filter {
     float processNoise , measurementNoise, dt, v, a;
     
     bool eval;
+    ofstream file_out;
 
 public:
     kalman_filter() {
@@ -45,7 +48,7 @@ public:
         v = dt;
         a = .5*dt*dt;
         //KF = KalmanFilter(9,3,0);
-        //ROS_INFO("[kalman_filter_node][WARNING] Using position-only model");
+        ROS_INFO("[kalman_filter_node][WARNING] Using position-only model");
         F = (Mat_<float>(9, 9) <<				1, 0, 0, v, 0, 0, a, 0, 0, 
                                         0, 1, 0, 0, v, 0, 0, a, 0, 
                                         0, 0, 1, 0, 0, v, 0, 0, a, 
@@ -176,14 +179,16 @@ public:
         }
         
         if (eval) {
-        	string sp = " ";
-        	cout << msg.x << sp << msg.y << sp << msg.z << sp 
-        		<< out.x << sp << out.y << sp << out.z 
-        		<< sp << x_last.at<float>(3) << sp << x_last.at<float>(4) << sp << x_last.at<float>(5) << sp 
-        		<< x_last.at<float>(6) << sp << x_last.at<float>(7) << sp << x_last.at<float>(8) << sp
-        		<< x_cur.at<float>(0) << sp << x_cur.at<float>(1) << sp << x_cur.at<float>(2) << sp
-        		<< x_cur.at<float>(3) << sp << x_cur.at<float>(4) << sp << x_cur.at<float>(5) << sp
-        		<< x_cur.at<float>(6) << sp << x_cur.at<float>(7) << sp << x_cur.at<float>(8) << sp << endl;
+					file_out.open("/home/bjarkips/output.txt", ios::app);
+        	string sp = ",";
+        	file_out	<< msg.x << sp << msg.y << sp << msg.z << sp 
+										<< out.x << sp << out.y << sp << out.z << sp
+										<< x_last.at<float>(3) << sp << x_last.at<float>(4) << sp << x_last.at<float>(5) << sp 
+										<< x_last.at<float>(6) << sp << x_last.at<float>(7) << sp << x_last.at<float>(8) << sp
+										<< x_cur.at<float>(0) << sp << x_cur.at<float>(1) << sp << x_cur.at<float>(2) << sp
+										<< x_cur.at<float>(3) << sp << x_cur.at<float>(4) << sp << x_cur.at<float>(5) << sp
+										<< x_cur.at<float>(6) << sp << x_cur.at<float>(7) << sp << x_cur.at<float>(8) << ";" << endl;
+					file_out.close();
         }
         
         estPos_pub.publish(out);
