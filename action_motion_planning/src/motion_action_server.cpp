@@ -49,11 +49,12 @@
 #include <string>
 #include <cmath>
 #include <fstream>      // std::ofstream
+#include <iostream>
+
 #include <math.h>     /* fabs */
 
 using namespace rw::pathplanning;
 using namespace rwlibs::pathplanners;
-
 
 // Based on the universal_robot_test.h from caros.
 class planner
@@ -133,8 +134,8 @@ public:
         // Use standard params:
         plannerRRT = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(plannerConstraint, device,rwlibs::pathplanners::RRTPlanner::RRTConnect);
 
-        ofs.open("Calibration_camera_robot.txt", std::ofstream::out);
-        ofsQ.open("Calibration_camera_robot_Q.txt", std::ofstream::out);
+        ofs.open("/home/petr/catkin_ws/Calibration_camera_robot.txt");
+        ofsQ.open("/home/petr/catkin_ws/Calibration_camera_robot_Q.txt");
 
     }
     
@@ -144,6 +145,8 @@ public:
     {
         //target position = last detection of red ball position
         rw::math::Vector3D<double> targetPos(req.x, req.y, req.z);
+        rw::math::RPY<double> targetRot(-0.578, 0.009, -1.052); //desired orientation of Ball frame towards camera
+        rw::math::Transform3D<double> targetT(targetPos, targetRot);
         
         //update current state of device in model
         rw::math::Q currentQ;
@@ -158,8 +161,8 @@ public:
         //Debug
         ROS_INFO_STREAM(req.x << " " << req.y << " " << req.z);
 
-        
-        goal = convert_to_q(req.x,req.y,req.z, currentState, currentQ);
+        goal = convert_to_q(targetT, currentState, currentQ);
+        //goal = convert_to_q(req.x,req.y,req.z, currentState, currentQ);
         
         return_stat = move_device_to_q(goal, currentQ, currentState);
         
@@ -204,7 +207,8 @@ public:
         
         // create RW Vector3D for new target position = last detection of red ball position
         rw::math::Vector3D<double> targetPos(action_goal->x, action_goal->y, action_goal->z);
-        
+        rw::math::RPY<double> targetRot(3.14, 0, -0.8);
+        rw::math::Transform3D<double> targetT(targetPos, targetRot);
         /*
         rw::math::Vector3D<double> aboveBase = (targetPos - rw::math::Vector3D<double>(0,0,0.3));
         double aboveBase_norm2 = aboveBase.norm2();
@@ -274,8 +278,8 @@ public:
             //ROS_INFO_STREAM(action_goal->x << " " << action_goal->y << " " << action_goal->z);
 
             
-            goal = convert_to_q(action_goal->x,action_goal->y,action_goal->z, currentState, currentQ);
-            //goal = convert_to_q(targetT, currentState, currentQ);
+            //goal = convert_to_q(action_goal->x,action_goal->y,action_goal->z, currentState, currentQ);
+            goal = convert_to_q(targetT, currentState, currentQ);
             
             return_stat = move_device_to_q(goal, currentQ, currentState);
 
@@ -338,13 +342,14 @@ public:
         return solutions[bestsolution];
     }
     
+    /*
     // This functions uses the JacobianIKsolver to find the configuration we want.
     rw::math::Q convert_to_q(double x, double y, double z, \
                             const rw::kinematics::State& state, const rw::math::Q& currentQ)
     {
         rw::math::Vector3D<double> translation(x,y,z);
 
-        rw::math::RPY<double> rotation(-0.406, 0.038, -1.036); //(3.14, 0, -0.8);  
+          
 
         /*
         // getQ from device, setQ in currentState, get rotation from the device.
@@ -353,7 +358,7 @@ public:
 
         device->setQ(currentQ,currentState);        
         */
-        
+       /* 
         rw::math::Transform3D<double> transformation(translation,rotation);
         
         std::vector<rw::math::Q> solutions;
@@ -393,7 +398,7 @@ public:
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! If no solution exists, the node crashes at the moment. This needs to be fixed! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         return solutions[bestsolution];
     }
-    
+    */
     //Moves the device to Q
     bool move_to_q(motion_planning::moveToQ::Request  &req,
                    motion_planning::moveToQ::Response &res)
@@ -555,6 +560,7 @@ protected:
     
     std::ofstream ofs;
     std::ofstream ofsQ;
+
     
     bool wait_for_current_messages()
     {
