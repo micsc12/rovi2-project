@@ -1,0 +1,33 @@
+ <launch>
+  <!-- use something like set_workcell:=0 (to disable setting a workcell using this launch script), or specify a specific workcell using workcell_path:=/path/to/the/workcell on the roslaunch commandline -->
+  <arg name="set_workcell" default="true" />
+  
+  <group if="$(arg set_workcell)">
+    <arg name="workcell_path" default="$(env RW_ROOT)/example/ModelData/XMLScenes/RobotOnTable/Scene.xml" />
+    <param name="/caros/workcell" value="$(arg workcell_path)" />
+  </group>
+
+  <!-- argument parameter to switch between simulation and workcell node
+  mode:= simulator -> simulation
+  mode:=cell3 -> connect to cell3 
+        -->
+  <arg name="mode" default="simulator" />
+  
+  <include  file="$(find caros_universalrobot)/launch/caros_universalrobot_param_$(arg mode).xml" ns="caros_universalrobot">
+    <!-- No parameters have to be set - relying on default values, but they are highly dependent on the workcell that is being used -->
+  </include>
+  
+  <!-- The 'name' parameter has to match the 'ns' parameter used in the include tag above -->
+  <node pkg="caros_universalrobot" type="caros_universalrobot_node" name="caros_universalrobot">
+  </node>
+  
+  
+  <node pkg="action_motion_planning" type="action_motion_planning_node" name="action_motion_planning" respawn="true" output = "screen">
+  </node>
+  
+  <node pkg="actionlib" type="axclient.py" name="GUI_for_action_client" args="/action_motion_planner action_motion_planning/Target_PositionAction">
+  </node>
+  
+  
+</launch>
+
