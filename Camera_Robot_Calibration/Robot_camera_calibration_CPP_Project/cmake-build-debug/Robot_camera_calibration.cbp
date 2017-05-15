@@ -8,38 +8,38 @@
 		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\opt\;CMake Files\..\..\..\..\..\..\..\opt\RobWork2\;CMake Files\..\..\..\..\..\..\..\opt\RobWork2\RobWork\;CMake Files\..\..\..\..\..\..\..\opt\RobWork2\RobWork\cmake\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug"/>
+				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug"/>
+				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug"/>
+				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="Robot_camera_calibration">
-				<Option output="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/build/Robot_camera_calibration" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/build"/>
+				<Option output="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/build/Robot_camera_calibration" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/build"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -63,15 +63,15 @@
 					<Add directory="/usr/include/c++/5/backward"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 Robot_camera_calibration"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 Robot_camera_calibration"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="Robot_camera_calibration/fast">
-				<Option output="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/build/Robot_camera_calibration" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/build"/>
+				<Option output="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/build/Robot_camera_calibration" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/build"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -95,26 +95,26 @@
 					<Add directory="/usr/include/c++/5/backward"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 Robot_camera_calibration/fast"/>
-					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 Robot_camera_calibration/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/main.cpp">
+		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/main.cpp">
 			<Option target="Robot_camera_calibration"/>
 		</Unit>
-		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/CMakeLists.txt">
+		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
-		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/../../../../../../../opt/RobWork2/RobWork/cmake/RobWorkConfigVersion.cmake">
+		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/../../../../../../../opt/RobWork2/RobWork/cmake/RobWorkConfigVersion.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\RobWork2\RobWork\cmake\"/>
 		</Unit>
-		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/../../../../../../../opt/RobWork2/RobWork/cmake/RobWorkConfig.cmake">
+		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/../../../../../../../opt/RobWork2/RobWork/cmake/RobWorkConfig.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\RobWork2\RobWork\cmake\"/>
 		</Unit>
-		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/../../../../../../../opt/RobWork2/RobWork/cmake/RobWorkBuildConfig_release.cmake">
+		<Unit filename="/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/../../../../../../../opt/RobWork2/RobWork/cmake/RobWorkBuildConfig_release.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\RobWork2\RobWork\cmake\"/>
 		</Unit>
 	</Project>
