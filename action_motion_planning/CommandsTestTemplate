@@ -1,0 +1,20 @@
+run python gui for working with action server:
+rosrun actionlib axclient.py /action_motion_planner/goal action_motion_planning/Target_PositionAction
+action_motion_planning/Target_PositionAction
+
+Tricky path for planner:
+
+from: 
+x: -0.5
+y: 0.4
+z: 0.7
+
+to:
+x: 0.5
+y: -0.4
+z: 0.7
+
+3rd point for test of preempting:
+x: 0.1
+y: -0.1
+z: 0.7
