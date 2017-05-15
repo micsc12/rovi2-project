@@ -12,6 +12,8 @@
 #include <rw/kinematics/Frame.hpp>
 #include <chrono>
 #include <vector>
+#include <ctime>
+#include <ratio>
 
 #include "path_optimizer.hpp"
 
@@ -1037,12 +1039,18 @@ int main(int argc, char** argv) {
 
     cout << optimizer.internal_path.size() << ", ";
     cout << optimizer.lenghtOfPathQSpace(optimizer.internal_path) << ", ";
+
     optimizer.prunePath();
     cout << optimizer.internal_path.size() << ", ";
     cout << optimizer.lenghtOfPathQSpace(optimizer.internal_path) << ", ";
+    chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double>>(optimizer.after_pruning - optimizer.before_pruning);
+    cout << time_span.count() << ", ";
+
     optimizer.shortcutPath();
     cout << optimizer.discretized_path.size() <<  ", ";
     cout << optimizer.lenghtOfPathQSpace(optimizer.discretized_path) << ", ";
+    time_span = chrono::duration_cast<chrono::duration<double>>(optimizer.after_shortcut - optimizer.before_shortcut);
+    cout << time_span.count() << ", ";
 
 
     optimizer2.shortcutPath();

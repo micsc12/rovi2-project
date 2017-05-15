@@ -18,12 +18,13 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
-#include <ctime>
+#include <chrono>
 
 using namespace rw::trajectory;
 using namespace rw::math;
 using namespace rw::models;
 using namespace rw::kinematics;
+using namespace std;
 
 
 class Pathoptimizerr
@@ -60,6 +61,7 @@ public:
     int stepsneeded;
     Q step2;
     rw::proximity::CollisionDetector::Ptr colDetect;
+    chrono::high_resolution_clock::time_point before_pruning, after_pruning, before_shortcut, after_shortcut;
 
 
 };
