@@ -4,6 +4,7 @@
 using namespace rw::trajectory;
 using namespace rw::math;
 using namespace rw::models;
+using namespace std;
 
 
 Pathoptimizerr::Pathoptimizerr(QPath path)
@@ -23,6 +24,7 @@ Pathoptimizerr::Pathoptimizerr(QPath path)
 
 void Pathoptimizerr::prunePath()
 {
+    before_pruning = chrono::high_resolution_clock::now();
     if(internal_path.size() < 3)
         return; // Not able to prune a path with only 2 configs!
 
@@ -45,13 +47,12 @@ void Pathoptimizerr::prunePath()
         }
 
     }
-
-
-    //Implement algorithm here
+    after_pruning = chrono::high_resolution_clock::now();
 }
 
 void Pathoptimizerr::shortcutPath()
 {
+    before_shortcut = chrono::high_resolution_clock::now();
     discretizePath(0.1);
     //std::cout << discretized_path.size() << std::endl;
     int numberOfTrials = 100; // How many times the algorithm tries to shortcut the path.
@@ -101,7 +102,7 @@ void Pathoptimizerr::shortcutPath()
         }
     }
 
-
+    after_shortcut = chrono::high_resolution_clock::now();
 }
 
 
