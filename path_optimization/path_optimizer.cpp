@@ -52,8 +52,8 @@ void Pathoptimizerr::prunePath()
 
 void Pathoptimizerr::shortcutPath()
 {
-    discretizePath(0.2);
-    std::cout << discretized_path.size() << std::endl;
+    discretizePath(0.1);
+    //std::cout << discretized_path.size() << std::endl;
     int numberOfTrials = 100; // How many times the algorithm tries to shortcut the path.
     Q point1, point2;
     int index1, index2;
