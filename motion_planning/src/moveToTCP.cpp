@@ -60,7 +60,7 @@ public:
     planner() : nodehandle_("~"), sdsip_(nodehandle_, "caros_universalrobot")
     {
         ROS_INFO("This node needs a workcell located at workcell/WC3_scene.wc.xml");
-        ROS_INFO("Check that you are running this node from catkin workspace Idiot !!!");
+        ROS_INFO("My good sir, please make sure that you are running this node from catkin workspace");
 
         wc = rw::loaders::WorkCellLoader::Factory::load("/home/petr/catkin_ws/workcell/WC3_Scene.wc.xml");
         if (wc == NULL) 
@@ -96,31 +96,24 @@ public:
         }
         
         grasp = nodehandle_.advertise<std_msgs::Bool>("/motion_planning/grasp", 1);
-        
-        //Base_Frame = wc->findFrame("Base");
 
-        //rw::kinematics::State currentStatePtr = &currentState;
+
         // Using same collisionchecker as RWstudio, to make it possible to validate results
         colDetect = new rw::proximity::CollisionDetector(wc,rwlibs::proximitystrategies::ProximityStrategyFactory::makeDefaultCollisionStrategy());
 
         // Using inverse kinematic from rw:
         rw::models::SerialDevice::Ptr sDevice = rw::common::ownedPtr( new rw::models::SerialDevice(device->getBase(), device->getEnd(), device->getName(), currentState));
-        //urIK = new rw::invkin::ClosedFormIKSolverUR(sDevice,currentState);
+
+        // Using jacobian IK solver, because it minimizes change in Q
         urIK = new rw::invkin::JacobianIKSolver(sDevice, Ball_Frame, currentState);
-        // Check joint limit here?
+
+        // Enable clamping (so IK only returns solutions within joint limits)
+        urIK->setCheckJointLimits(true);
+
 
 
         // Constraint planner needed for RRT
         plannerConstraint = rw::pathplanning::PlannerConstraint::make(colDetect, device, currentState);
-
-        sampler = rw::pathplanning::QSampler::makeConstrained(rw::pathplanning::QSampler::makeUniform(device),
-                                                              plannerConstraint.getQConstraintPtr());
-
-        // Using standard metric
-        metric = rw::math::MetricFactory::makeEuclidean<rw::math::Q>();
-
-        // RRT connet planner
-        //plannerRRT = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(plannerConstraint, sampler, metric, extend, rwlibs::pathplanners::RRTPlanner::RRTConnect);
 
         // Use standard params:
         plannerRRT = rwlibs::pathplanners::RRTPlanner::makeQToQPlanner(plannerConstraint, device,rwlibs::pathplanners::RRTPlanner::RRTConnect);
@@ -160,24 +153,19 @@ public:
 
         ROS_INFO_STREAM(solutions.size() << " solutions found for IK. Selecting the best one!");
 
-
+        // Check norm2 length of solutions in q-space.
         for (int i = 0; i < solutions.size(); i++)
         {
-            //ROS_INFO_STREAM("checking solutions" << solutions[i][5]);
+
             difference = currentQ - solutions[i];
-
-
             if (difference.norm2() < max_dist)
             {
                 bestsolution = i;
                 max_dist = difference.norm2();
             }
         }
-        //solutions[bestsolution][5] = 0;
 
-
-        // Now it just returns the first solution, not the best!!!
-        // If no solution exists, the node crashes at the moment. This needs to be fixed!
+        // Return the best invkin solution:
         return solutions[bestsolution];
     }
     
@@ -185,7 +173,6 @@ public:
     rw::math::Q convert_to_q(double x, double y, double z)
     {
         rw::math::Vector3D<double> translation(x,y,z);
-        //rw::math::Rotation3D<double> current_rotation,roll,pitch,yaw;
         rw::math::RPY<double> rotation(3.14, 0, -0.8);   //rotation(0, -1.5, 1.5);
 
         // getQ from device, setQ in currentState, get rotation from the device.
@@ -193,33 +180,8 @@ public:
 
         device->setQ(currentQ,currentState);        
 
-        // base to end transform for new position, same orientation:
-        // this should be done more intelligently, (3 equations with 6 unknows, select nearest)
-
 
         std::vector<rw::math::Q> solutions; //,new_solutions;
-        // Get solutions for all possibble orientations:
-        /*
-        for (int x = 0; x < 200; x+=20)
-        {
-            yaw = getXrotation(x);
-            for (int y = 0; y < 200; y+=20)
-            {
-                pitch = getYrotation(y);
-                for (int z = 0; z < 200; z+=20)
-                {
-                    roll = getZrotation(z);
-
-                    current_rotation = roll*pitch*yaw;
-                    rw::math::Transform3D<double> transformation(translation,current_rotation);
-
-                    new_solutions = urIK->solve(transformation, currentState);
-                    solutions.insert(solutions.end(),new_solutions.begin(),new_solutions.end());
-                }
-            }
-        }
-        */
-        
             
         rw::math::Transform3D<double> transformation(translation,rotation);
         solutions = urIK->solve(transformation, currentState);
@@ -239,128 +201,20 @@ public:
         ROS_INFO_STREAM(solutions.size() << " solutions found for IK. Selecting the best one!");
 
 
+        // Check norm2 length of solutions in q-space.
         for (int i = 0; i < solutions.size(); i++)
         {
-            //ROS_INFO_STREAM("checking solutions" << solutions[i][5]);
+
             difference = currentQ - solutions[i];
-
-
             if (difference.norm2() < max_dist)
             {
                 bestsolution = i;
                 max_dist = difference.norm2();
             }
         }
-        //solutions[bestsolution][5] = 0;
 
-
-        // Now it just returns the first solution, not the best!!!
-        // If no solution exists, the node crashes at the moment. This needs to be fixed!
+        // Return the best invkin solution:
         return solutions[bestsolution];
-    }
-
-
-    // This functions uses the closedformIKsolver to find the configuration we want.
-    /*rw::math::Q convert_to_q2(double x, double y, double z)
-    {
-        rw::math::Vector3D<double> translation(x,y,z);
-        rw::math::Rotation3D<double> current_rotation;
-
-        // getQ from device, setQ in currentState, get rotation from the device.
-        rw::math::Q currentQ = sdsip_.getQ();
-
-        device->setQ(currentQ,currentState);
-
-        rw::math::Jacobian full_jacobian = device->baseJend(currentState);
-
-        rw::math::Jacobian jacobian(3,6);
-        jacobian.e() = full_jacobian.e().block(0,0,3,6);
-
-
-        rw::math::Q solution(6);
-        solution.e() = jacobian.e().transpose()*(jacobian.e()*jacobian.e().transpose()).inverse()*translation.e();
-
-
-
-        // base to end transform for new position, same orientation:
-        // this should be done more intelligently, (3 equations with 6 unknows, select nearest)
-        rw::math::Transform3D<double> transformation(translation,current_rotation);
-
-        std::vector<rw::math::Q> solutions;
-        solutions = urIK->solve(transformation, currentState);
-
-        // Determine the best of the found solutions:
-        int bestsolution = 0;
-        double max_dist = 10000;
-        rw::math::Q difference;
-
-
-        for (int i = 0; i < solutions.size(); i++)
-        {
-            ROS_INFO_STREAM("checking solutions" << solutions[i][5]);
-            difference = currentQ - solutions[i];
-
-            difference[5] = 0;
-            if (difference.norm2() < max_dist)
-            {
-                bestsolution = i;
-                max_dist = difference.norm2();
-            }
-        }
-        solutions[bestsolution][5] = 0;
-
-
-        // Now it just returns the first solution, not the best!!!
-        // If no solution exists, the node crashes at the moment. This needs to be fixed!
-        return solution;
-    }
-    //*/
-
-
-    rw::math::Rotation3D<double> getXrotation(double angle)
-    {
-        rw::math::Rotation3D<double> ret_val;
-        ret_val(0,0) = 1;
-        ret_val(0,1) = 0;
-        ret_val(0,2) = 0;
-
-        ret_val(1,0) = 0;
-        ret_val(1,1) = cos(angle/180 * M_PI);
-        ret_val(1,2) = -sin(angle/180 * M_PI);
-
-        ret_val(2,0) = 0;
-        ret_val(2,1) = sin(angle/180 * M_PI);
-        ret_val(2,2) = cos(angle/180 * M_PI);
-    }
-    rw::math::Rotation3D<double> getYrotation(double angle)
-    {
-        rw::math::Rotation3D<double> ret_val;
-        ret_val(0,0) = cos(angle/180 * M_PI);
-        ret_val(0,1) = 0;
-        ret_val(0,2) = sin(angle/180 * M_PI);;
-
-        ret_val(1,0) = 0;
-        ret_val(1,1) = 1;
-        ret_val(1,2) = 0;
-
-        ret_val(2,0) = -sin(angle/180 * M_PI);
-        ret_val(2,1) = 0;
-        ret_val(2,2) = cos(angle/180 * M_PI);
-    }
-    rw::math::Rotation3D<double> getZrotation(double angle)
-    {
-        rw::math::Rotation3D<double> ret_val;
-        ret_val(0,0) = cos(angle/180 * M_PI);
-        ret_val(0,1) = -sin(angle/180 * M_PI);
-        ret_val(0,2) = 0;
-
-        ret_val(1,0) = sin(angle/180 * M_PI);
-        ret_val(1,1) = cos(angle/180 * M_PI);
-        ret_val(1,2) = 0;
-
-        ret_val(2,0) = 0;
-        ret_val(2,1) = 0;
-        ret_val(2,2) = 1;
     }
 
 
@@ -477,6 +331,7 @@ public:
     {
         bool return_stat = true;
 
+        // Get current Q from device
         rw::math::Q currentQ = get_current_Q();
         device->setQ(currentQ,currentState);
 
@@ -485,6 +340,7 @@ public:
         // Find Path
         bool path_found = plannerRRT->query(currentQ,configuration,path);//,MAXTIME);
 
+        // If a path exists:
         if (path_found)
         {
             ROS_INFO_STREAM("Path length: " << path.size() );
@@ -495,7 +351,6 @@ public:
             for (int i = 1; i < path.size(); ++i)
             {
                 ROS_INFO_STREAM("Moving to configuration " << i <<" : " << path[i] << " ...");
-                // Testing out moveptp
 
 
                 if (calibration)
@@ -515,7 +370,6 @@ public:
                 
                 else
                 {
-                    //return_stat = sdsip_.movePtp(path[i]); // MIchaels
                     return_stat = sdsip_.moveServoQ(path[i]); // Petrs
                 }
 
@@ -556,6 +410,8 @@ public:
             ROS_INFO("Path was NOT found.");
             
             rw::kinematics::State goalState = wc->getDefaultState(); 
+
+            //TODO: THIS SEEMS WRONG -> IT does not check the goal Q, but the start Q
             device->setQ(currentQ,goalState);
             if (colDetect->inCollision(goalState))
                 ROS_INFO("Goal is in collision!");
@@ -563,25 +419,6 @@ public:
             return_stat = false;
         }
 
-        /*
-        if (!colDetect->inCollision(currentState))
-        {
-            return_stat = sdsip_.moveServoQ(configuration);
-            ROS_INFO("Movement done");
-
-            if (!return_stat)
-            {
-                return_stat = false;
-                ROS_ERROR_STREAM("The serial device didn't acknowledge the moveServoQ command.");
-            }
-        }
-        else
-        {
-            
-            
-            return_stat = false;
-        }
-        */
         return return_stat;
     }
 
