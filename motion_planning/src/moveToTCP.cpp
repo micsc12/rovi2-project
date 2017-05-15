@@ -8,6 +8,7 @@
 #include <caros_universalrobot/UrServiceServoQ.h>
 
 #include "std_msgs/String.h"
+#include "std_msgs/Bool.h"
 #include <sstream>
 #include <string>
 #include <cmath>
@@ -35,6 +36,7 @@
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 
 #include <rw/invkin/ClosedFormIKSolverUR.hpp>
+#include <rw/invkin/JacobianIKSolver.hpp>
 
 #include <rw/loaders/WorkCellLoader.hpp>
 
@@ -58,8 +60,9 @@ public:
     planner() : nodehandle_("~"), sdsip_(nodehandle_, "caros_universalrobot")
     {
         ROS_INFO("This node needs a workcell located at workcell/WC3_scene.wc.xml");
+        ROS_INFO("Check that you are running this node from catkin workspace Idiot !!!");
 
-        wc = rw::loaders::WorkCellLoader::Factory::load("workcell/WC3_Scene.wc.xml");
+        wc = rw::loaders::WorkCellLoader::Factory::load("/home/petr/catkin_ws/workcell/WC3_Scene.wc.xml");
         if (wc == NULL) 
         {
             ROS_INFO(" Workcell not found.");
@@ -85,6 +88,15 @@ public:
         {
             ROS_INFO(" Marker Frame not found.");
         }
+        
+        Ball_Frame = wc->findFrame("BallFrame");
+        if (Ball_Frame == NULL) 
+        {
+            ROS_INFO(" Ball Frame not found.");
+        }
+        
+        grasp = nodehandle_.advertise<std_msgs::Bool>("/motion_planning/grasp", 1);
+        
         //Base_Frame = wc->findFrame("Base");
 
         //rw::kinematics::State currentStatePtr = &currentState;
@@ -93,7 +105,8 @@ public:
 
         // Using inverse kinematic from rw:
         rw::models::SerialDevice::Ptr sDevice = rw::common::ownedPtr( new rw::models::SerialDevice(device->getBase(), device->getEnd(), device->getName(), currentState));
-        urIK = new rw::invkin::ClosedFormIKSolverUR(sDevice,currentState);
+        //urIK = new rw::invkin::ClosedFormIKSolverUR(sDevice,currentState);
+        urIK = new rw::invkin::JacobianIKSolver(sDevice, Ball_Frame, currentState);
         // Check joint limit here?
 
 
@@ -172,8 +185,8 @@ public:
     rw::math::Q convert_to_q(double x, double y, double z)
     {
         rw::math::Vector3D<double> translation(x,y,z);
-        rw::math::RPY<double> rotation(0.0,-1.5,1.5); //-1.5, -1.5, 1.5
-        //unused: rw::math::Rotation3D<double> current_rotation,roll,pitch,yaw;
+        //rw::math::Rotation3D<double> current_rotation,roll,pitch,yaw;
+        rw::math::RPY<double> rotation(3.14, 0, -0.8);   //rotation(0, -1.5, 1.5);
 
         // getQ from device, setQ in currentState, get rotation from the device.
         rw::math::Q currentQ = sdsip_.getQ();
@@ -184,9 +197,10 @@ public:
         // this should be done more intelligently, (3 equations with 6 unknows, select nearest)
 
 
-        std::vector<rw::math::Q> solutions,new_solutions;
+        std::vector<rw::math::Q> solutions; //,new_solutions;
         // Get solutions for all possibble orientations:
-        /*for (int x = 0; x < 200; x+=20)
+        /*
+        for (int x = 0; x < 200; x+=20)
         {
             yaw = getXrotation(x);
             for (int y = 0; y < 200; y+=20)
@@ -194,16 +208,21 @@ public:
                 pitch = getYrotation(y);
                 for (int z = 0; z < 200; z+=20)
                 {
-                    roll = getZrotation(z);*/
+                    roll = getZrotation(z);
 
-                    //current_rotation = roll*pitch*yaw;
-                    rw::math::Transform3D<double> transformation(translation,rotation);
+                    current_rotation = roll*pitch*yaw;
+                    rw::math::Transform3D<double> transformation(translation,current_rotation);
 
                     new_solutions = urIK->solve(transformation, currentState);
                     solutions.insert(solutions.end(),new_solutions.begin(),new_solutions.end());
-                /*}
+                }
             }
-        }*/
+        }
+        */
+        
+            
+        rw::math::Transform3D<double> transformation(translation,rotation);
+        solutions = urIK->solve(transformation, currentState);
 
         // If no solutions exist, the service failed:
         if(solutions.size() == 0)
@@ -349,11 +368,45 @@ public:
     bool move_to_tcp(motion_planning::moveToTCP::Request  &req,
                      motion_planning::moveToTCP::Response &res)
     {
-        ROS_INFO("Calling Inverse kinematics ...");
+        //target position = last detection of red ball position
+        rw::math::Vector3D<double> targetPos(req.x, req.y, req.z);
+        
+        //update current state of device in model
+        rw::math::Q currentQ = get_current_Q();
+        device->setQ(currentQ,currentState);
+        // find current tranformation for the Ball_Frame
+        auto baseTball_frame = device->baseTframe(Ball_Frame, currentState);
+        // get only current position
+        rw::math::Vector3D<double> currPos = baseTball_frame.P();
+        
+        // compute 2 norm of error from target position
+        auto err = (currPos - targetPos);
+        double err2norm = err.norm2();
+        
+        ROS_INFO_STREAM("2-norm of position error: " << err2norm);
+        
+        std_msgs::Bool msg_grasp;
+        msg_grasp.data = false;
+        // if the error is low enough GRASP red ball
+        if (err2norm < 0.04)
+        {
+            //ROS_INFO_STREAM("GRASP TRUE");
+            msg_grasp.data = true;
+        }
+        
+        // publish do_grasp on topic
+        grasp.publish(msg_grasp);
+        
+        
+        ROS_INFO_STREAM("Calling Inverse kinematics ..." << std::endl);
 
         bool return_stat;
         res.ok = 1;
         rw::math::Q goal;
+        //Debug
+        ROS_INFO_STREAM(req.x << " " << req.y << " " << req.z);
+
+        
         goal = convert_to_q(req.x,req.y,req.z);
         
         return_stat = move_device_to_q(goal);
@@ -365,6 +418,7 @@ public:
     bool move_to_tcp_calibration(motion_planning::moveToTCP::Request  &req,
                      motion_planning::moveToTCP::Response &res)
     {
+        
         ROS_INFO("Calling Path planner ...");
 
         bool return_stat;
@@ -458,9 +512,11 @@ public:
                 //ROS_INFO_STREAM("Final error from path[" << i << "] configuration: " << error_from_target(path[i]) );
                 //t.pause();
                 }
+                
                 else
                 {
-                    return_stat = sdsip_.movePtp(path[i]);
+                    //return_stat = sdsip_.movePtp(path[i]); // MIchaels
+                    return_stat = sdsip_.moveServoQ(path[i]); // Petrs
                 }
 
                 
@@ -533,17 +589,20 @@ public:
 protected:
     ros::NodeHandle nodehandle_;
     caros::SerialDeviceSIProxy sdsip_;
+    ros::Publisher grasp;
 
     rw::models::WorkCell::Ptr wc;
     rw::models::Device::Ptr device;
     rw::kinematics::State  currentState;
     rw::kinematics::Frame* TCP_Frame;
     rw::kinematics::Frame* Marker_Frame;
+    rw::kinematics::Frame* Ball_Frame;
 
     rw::proximity::CollisionStrategy::Ptr colStrat;
     rw::proximity::CollisionDetector::Ptr colDetect;
 
-    rw::invkin::ClosedFormIKSolverUR::Ptr urIK;
+    //rw::invkin::ClosedFormIKSolverUR::Ptr urIK;
+    rw::invkin::JacobianIKSolver::Ptr urIK;
 
 
     // costraint planner needed for pathplanner

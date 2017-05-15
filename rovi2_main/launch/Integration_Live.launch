@@ -1,0 +1,64 @@
+<launch>
+    
+  <!-- SETUP for ROBOTIC part -->
+  <!-- ######################################################-->
+  
+  <!-- use something like set_workcell:=0 (to disable setting a workcell using this launch script), or specify a specific workcell using workcell_path:=/path/to/the/workcell on the roslaunch commandline -->
+  <arg name="set_workcell" default="true" />
+  
+  <group if="$(arg set_workcell)">
+    <arg name="workcell_path" default="$(env RW_ROOT)/example/ModelData/XMLScenes/RobotOnTable/Scene.xml" />
+    <param name="/caros/workcell" value="$(arg workcell_path)" />
+  </group>
+
+  <!-- argument parameter to switch between simulation and workcell node
+  mode:= simulator -> simulation
+  mode:=cell3 -> connect to cell3 
+        -->
+  <arg name="mode" default="simulator" />
+  <!-- Load correct parameter file for specified mode (simulation or workcell)-->
+  <include  file="$(find caros_universalrobot)/launch/caros_universalrobot_param_$(arg mode).xml" ns="caros_universalrobot">
+    <!-- No parameters have to be set - relying on default values, but they are highly dependent on the workcell that is being used -->
+  </include>
+  
+  <!-- The 'name' parameter has to match the 'ns' parameter used in the include tag above -->
+  <node pkg="caros_universalrobot" type="caros_universalrobot_node" name="caros_universalrobot">
+  </node>
+  
+  <!-- Motion planning node with services for Robot movement -->
+  <node pkg="motion_planning" type="motion_planning_node" name="motion_planning" output="screen" respawn="true">
+  </node>
+  
+  
+  <!-- SETUP for VISION part -->
+  <!-- ######################################################-->
+  
+  <!-- Run decompressing topics -->
+  <node name = "decomp_left" pkg = "image_transport" type = "republish" respawn = "true" output = "screen" args = "compressed in:=/image_compressed_left raw out:=/image_decompressed_left"/>
+   <node name = "decomp_right" pkg = "image_transport" type = "republish" respawn = "true" output = "screen" args = "compressed in:=/image_compressed_right raw out:=/image_decompressed_right"/>
+   
+   <!-- Run Red_ball node to detect balls in left and right images -->
+  <node name = "vis2d" pkg = "red_ball" type = "red_ball_node" respawn = "true" args = ""/>
+  
+  <!-- Stereo camera node for computation 3D position of ball pose from 2 images -->
+  <node name = "stereo" pkg = "stereo_cam" type = "stereo_cam_node" respawn = "true" output = "screen" args = ""/>
+  
+  <!-- Kalman filter node -->
+  <node name = "filter" pkg = "kalman_filter" type = "kalman_filter_node" respawn = "true" args = ""/>
+  
+  <!-- Kalman Filter test node for putting markers of estimated pose onto images-->
+  <node name = "test" pkg = "kf_test" type = "kf_test_node" respawn = "true" args = ""/>
+  <!-- Open rqt_image_view for displaying images with estimation from Kalman Filter-->
+  <node name = "view" pkg = "rqt_image_view" type = "rqt_image_view" args = "/kf_test/output_video_left"/>
+  
+  <!-- GLUE Between the two parts -->
+  <!-- ######################################################-->
+  
+  <!-- run node for lowering frequency of target points from Kalman Filter -->
+  <node name="throttler_for_KF_messages" type="throttle" pkg="topic_tools" args="messages /kalman_filter/predicted_pos 5.0 /throttled_pos" />
+  
+  <!-- run node for converting positions from camera frame into robot Base frame -->
+  <node name="camera_to_robot_convertnode" pkg="camera_to_robot" type="camera_to_robot_node" output = "screen" />
+  
+  
+</launch> 
