@@ -1026,12 +1026,44 @@ int main(int argc, char** argv) {
 }
 
 
-
+    next_q = new Q(6, 0.0, -1.6, 0.0, -1.6, 1.0, 0.0);
+    current_path.push_back(*next_q);
+    next_q = new Q(6, 0.0, -1.6, 0.0, -1.6, 2.0, 0.0);
+    current_path.push_back(*next_q);
+    testpath.push_back(current_path);
+    current_path.clear();
 
 
     cout << testpath.size() << " test paths loaded!" << endl;
+    /*
+    Pathoptimizerr optimizer(testpath[30]);
+
+    cout << endl << optimizer.collisionChecks << endl;
+    optimizer.checkPathSegment(optimizer.internal_path.front(),optimizer.internal_path.back(),0.000001);
+
+    cout << endl << optimizer.collisionChecks << endl;
+    */
+
+    for (int j = 1; j <= 10; j++)
+    {
+    for (int k = 0; k < 10; k++)
+    {
+    for (int i = 0; i < 30; i++)
+    {
+        Pathoptimizerr optimizer(testpath[i]);
+        optimizer.discretizePath(0.005*j);
+
+            optimizer.shortcutPath();
+            cout << optimizer.lenghtOfPathQSpace(optimizer.discretized_path) << ", ";
 
 
+    }
+    }
+    cout << endl;
+}
+
+
+/*  //Remove comment to generate boxplot data
     for (int i = 0; i < 30; i++)
     {
     Pathoptimizerr optimizer(testpath[i]);
@@ -1039,25 +1071,31 @@ int main(int argc, char** argv) {
 
     cout << optimizer.internal_path.size() << ", ";
     cout << optimizer.lenghtOfPathQSpace(optimizer.internal_path) << ", ";
-
+    cout << optimizer.collisionChecks << ", ";
     optimizer.prunePath();
     cout << optimizer.internal_path.size() << ", ";
     cout << optimizer.lenghtOfPathQSpace(optimizer.internal_path) << ", ";
     chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double>>(optimizer.after_pruning - optimizer.before_pruning);
     cout << time_span.count() << ", ";
+    cout << optimizer.collisionChecks << ", ";
 
     optimizer.shortcutPath();
     cout << optimizer.discretized_path.size() <<  ", ";
     cout << optimizer.lenghtOfPathQSpace(optimizer.discretized_path) << ", ";
     time_span = chrono::duration_cast<chrono::duration<double>>(optimizer.after_shortcut - optimizer.before_shortcut);
     cout << time_span.count() << ", ";
+    cout << optimizer.collisionChecks << ", ";
 
 
     optimizer2.shortcutPath();
     cout << optimizer2.discretized_path.size() <<  ", ";
-    cout << optimizer2.lenghtOfPathQSpace(optimizer2.discretized_path) << "; " << endl;
+    cout << optimizer2.lenghtOfPathQSpace(optimizer2.discretized_path) << ", ";
+    time_span = chrono::duration_cast<chrono::duration<double>>(optimizer2.after_shortcut - optimizer2.before_shortcut);
+    cout << time_span.count() << ", ";
+    cout << optimizer2.collisionChecks << "; " << endl;
 
     }
+//*/
 
     return 0;
 }

@@ -31,7 +31,7 @@ class Pathoptimizerr
 {
 public:
     Pathoptimizerr(QPath);
-
+    ~Pathoptimizerr();
     // Path optimization:
     void prunePath();
     void shortcutPath();
@@ -62,6 +62,7 @@ public:
     Q step2;
     rw::proximity::CollisionDetector::Ptr colDetect;
     chrono::high_resolution_clock::time_point before_pruning, after_pruning, before_shortcut, after_shortcut;
+    int collisionChecks;
 
 
 };

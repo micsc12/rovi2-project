@@ -13,6 +13,7 @@ Pathoptimizerr::Pathoptimizerr(QPath path)
     dist_initial = lenghtOfPathQSpace(internal_path);
     wc = rw::loaders::WorkCellLoader::Factory::load("workcell/WC3_Scene.wc.xml");
     device = wc->findDevice("UR1");
+    collisionChecks = 0;
 
     currentState = wc->getDefaultState();
 
@@ -20,6 +21,13 @@ Pathoptimizerr::Pathoptimizerr(QPath path)
     // Using same collisionchecker as RWstudio, to make it possible to validate results
     colDetect = new rw::proximity::CollisionDetector(wc,rwlibs::proximitystrategies::ProximityStrategyFactory::makeDefaultCollisionStrategy());
     std::srand(std::time(0)); // Random seed
+}
+Pathoptimizerr::~Pathoptimizerr()
+{
+    delete colDetect.get();
+
+    device.getSharedPtr().reset();
+    wc.getSharedPtr().reset();
 }
 
 void Pathoptimizerr::prunePath()
@@ -53,7 +61,7 @@ void Pathoptimizerr::prunePath()
 void Pathoptimizerr::shortcutPath()
 {
     before_shortcut = chrono::high_resolution_clock::now();
-    discretizePath(0.1);
+    //discretizePath(0.1);
     //std::cout << discretized_path.size() << std::endl;
     int numberOfTrials = 100; // How many times the algorithm tries to shortcut the path.
     Q point1, point2;
@@ -61,14 +69,20 @@ void Pathoptimizerr::shortcutPath()
     int divisor = RAND_MAX/discretized_path.size();
     for (int i = 0; i < numberOfTrials; i++)
     {
-
+        // Behaves strangely when number of points on path is too low. Therefore this check is added
+        if(discretized_path.size() < 3)
+        {
+            break;
+        }
         // Sample two points:
         index1 = std::rand() / divisor;
         index2 = std::rand() / divisor;
         while (index2 == index1 || index2-1 == index1 || index2+1 == index1) //Make sure that we are not trying to shortcut to and from the same node..
         {
             index2 = std::rand() / divisor;
+
         }
+
 
 
         //std::cout << "indexes:  " << index1 << " " << index2 << " size: " << discretized_path.size() << std::endl;
@@ -96,10 +110,7 @@ void Pathoptimizerr::shortcutPath()
             // Calculate new divisor:
             divisor = RAND_MAX/discretized_path.size();
         }
-        if(discretized_path.size() == 2)
-        {
-            break;
-        }
+
     }
 
     after_shortcut = chrono::high_resolution_clock::now();
@@ -120,6 +131,8 @@ bool Pathoptimizerr::checkPathSegment(Q start, Q goal, double precision)
     device->setQ(goal,currentState);
     if (colDetect->inCollision(currentState))
         return false;
+
+    collisionChecks += 2;
 
     // Ceil value + round it up.
     double min_steps = std::ceil(dist / precision);
@@ -152,6 +165,7 @@ bool Pathoptimizerr::checkPathSegment(Q start, Q goal, double precision)
             device->setQ(current_pos,currentState);
             if (colDetect->inCollision(currentState))
                 return false;
+            collisionChecks++;
 
         }
     }
