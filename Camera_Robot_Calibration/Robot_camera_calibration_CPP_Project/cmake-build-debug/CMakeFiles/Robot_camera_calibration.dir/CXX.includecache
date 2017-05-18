@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/main.cpp
+/media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/main.cpp
 iostream
 -
 sstream

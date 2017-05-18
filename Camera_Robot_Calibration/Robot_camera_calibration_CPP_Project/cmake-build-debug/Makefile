@@ -48,10 +48,10 @@ RM = /opt/clion-2016.3.1/bin/cmake/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration
+CMAKE_SOURCE_DIR = /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug
+CMAKE_BINARY_DIR = /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/CMakeFiles /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/CMakeFiles /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/petr/HDD/SDU/RoVi2/Project/Robot_camera_calibration_CPP_Project/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
